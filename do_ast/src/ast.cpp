@@ -1,5 +1,5 @@
 
-#include <do_ast/do_ast.h>
+#include <do_ast/ast.h>
 
 namespace do_ast {
 

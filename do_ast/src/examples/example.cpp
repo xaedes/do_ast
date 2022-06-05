@@ -14,13 +14,9 @@ int main(int argc, char **argv)
     auto b = ast.create_with_value(0, 0.5f);
     auto c = ast.create_with_args(1, a, b);
     auto d = ast.create_with_value(0, true);
-    // auto idx = pool.emplace();
+    auto e = ast.create_with_args(0, c, d);
 
-    std::cout << c << "\n";
-    // std::cout << pool[idx].expr_type << "\n";
-
-    ast.visit(c, TreePrinterVisitor());
-    ast.visit(d, TreePrinterVisitor());
+    ast.visit(e, TreePrinterVisitor());
 
     return 0;
 }
