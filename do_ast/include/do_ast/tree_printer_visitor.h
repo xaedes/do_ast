@@ -1,12 +1,12 @@
 #pragma once
 
 #include <do_ast/ast.h>
+#include <do_ast/item_pool.h>
 
 namespace do_ast {
 
     struct TreePrinterVisitor
     {
-        using index_type = Ast::index_type;
         std::string indent = "    ";
         unsigned int current_indent = 0;
 
@@ -18,9 +18,13 @@ namespace do_ast {
             }
         }
 
-        void print_expr_idx(index_type expr_idx)
+        void print_expr_idx(ItemPoolIndex expr_idx)
         {
-            std::cout << std::setbase(16) << std::setfill('0') << std::setw(sizeof(index_type)/16) << expr_idx;
+            std::cout << "idx[";
+            std::cout << std::setbase(16) << std::setfill('0') << std::setw(sizeof(ItemPoolIndex)/16) << expr_idx.index;
+            std::cout << ", ";
+            print_value(expr_idx.smc);
+            std::cout << "]";
         }
         
         void print_expr_type(uint32_t expr_type)
@@ -80,8 +84,16 @@ namespace do_ast {
         {
             std::cout << "'" << value << "'";
         }
-    
-        void no_args(Ast& ast, index_type expr_idx, uint32_t expr_type) 
+
+        void nil(Ast& ast, ItemPoolIndex expr_idx) 
+        {
+            print_indent();
+            std::cout << "nil ";
+            print_expr_idx(expr_idx);
+            std::cout << "\n";
+        }
+
+        void no_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type) 
         {
             print_indent();
             std::cout << "no_args ";
@@ -91,7 +103,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_args(Ast& ast, index_type expr_idx, uint32_t expr_type, index_type arg1) 
+        void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1) 
         {
             print_indent();
             std::cout << "with_args ";
@@ -105,7 +117,7 @@ namespace do_ast {
 
         } 
 
-        void with_args(Ast& ast, index_type expr_idx, uint32_t expr_type, index_type arg1, index_type arg2) 
+        void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2) 
         {
             print_indent();
             std::cout << "with_args ";
@@ -119,7 +131,7 @@ namespace do_ast {
             --current_indent;
         } 
 
-        void with_args(Ast& ast, index_type expr_idx, uint32_t expr_type, index_type arg1, index_type arg2, index_type arg3) 
+        void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2, ItemPoolIndex arg3) 
         {
             print_indent();
             std::cout << "with_args ";
@@ -134,7 +146,7 @@ namespace do_ast {
             --current_indent;
         } 
 
-        void with_args(Ast& ast, index_type expr_idx, uint32_t expr_type, index_type arg1, index_type arg2, index_type arg3, index_type arg4) 
+        void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2, ItemPoolIndex arg3, ItemPoolIndex arg4) 
         {
             print_indent();
             std::cout << "with_args ";
@@ -150,7 +162,7 @@ namespace do_ast {
             --current_indent;
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type) 
         {
             print_indent();
             std::cout << "with_value (void) ";
@@ -160,7 +172,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, void* value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, void* value) 
         {
             print_indent();
             std::cout << "with_value (void*) ";
@@ -172,7 +184,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, bool value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, bool value) 
         {
             print_indent();
             std::cout << "with_value (bool) ";
@@ -184,7 +196,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, int8_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, int8_t value) 
         {
             print_indent();
             std::cout << "with_value (int8_t) ";
@@ -196,7 +208,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, uint8_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, uint8_t value) 
         {
             print_indent();
             std::cout << "with_value (uint8_t) ";
@@ -208,7 +220,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, int16_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, int16_t value) 
         {
             print_indent();
             std::cout << "with_value (int16_t) ";
@@ -220,7 +232,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, uint16_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, uint16_t value) 
         {
             print_indent();
             std::cout << "with_value (uint16_t) ";
@@ -232,7 +244,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, int32_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, int32_t value) 
         {
             print_indent();
             std::cout << "with_value (int32_t) ";
@@ -244,7 +256,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, uint32_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, uint32_t value) 
         {
             print_indent();
             std::cout << "with_value (uint32_t) ";
@@ -256,7 +268,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, int64_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, int64_t value) 
         {
             print_indent();
             std::cout << "with_value (int64_t) ";
@@ -268,7 +280,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, uint64_t value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, uint64_t value) 
         {
             print_indent();
             std::cout << "with_value (uint64_t) ";
@@ -280,7 +292,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, float value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, float value) 
         {
             print_indent();
             std::cout << "with_value (float) ";
@@ -292,7 +304,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, double value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, double value) 
         {
             print_indent();
             std::cout << "with_value (double) ";
@@ -304,7 +316,7 @@ namespace do_ast {
             std::cout << "\n";
         } 
 
-        void with_value(Ast& ast, index_type expr_idx, uint32_t expr_type, const std::string& value) 
+        void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, const std::string& value) 
         {
             print_indent();
             std::cout << "with_value (string) ";

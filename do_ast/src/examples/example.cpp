@@ -18,5 +18,13 @@ int main(int argc, char **argv)
 
     ast.visit(e, TreePrinterVisitor());
 
+    ast.erase_expr_recursive(c);
+
+    ast.visit(e, TreePrinterVisitor());
+
+    auto f = ast.create_with_args(0, e);
+
+    ast.visit(f, TreePrinterVisitor());
+
     return 0;
 }

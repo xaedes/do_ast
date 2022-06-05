@@ -6,29 +6,29 @@ namespace do_ast {
 
     
     template<class T>
-    T& ItemPool<T>::operator[](index_type idx)
+    T& ItemPool<T>::get(ItemPoolIndex idx)
     {
-        return m_slots[idx];
+        return m_slots[idx.index];
     }
     
     template<class T>
-    const T& ItemPool<T>::operator[](index_type idx) const
+    const T& ItemPool<T>::get(ItemPoolIndex idx) const
     {
-        return m_slots[idx];
+        return m_slots[idx.index];
     }
     
     template<class T>
-    T& ItemPool<T>::at(index_type idx)
+    T& ItemPool<T>::at(ItemPoolIndex idx)
     {
         assert(contains(idx));
-        return m_slots.at(idx);
+        return m_slots.at(idx.index);
     }
     
     template<class T>
-    const T& ItemPool<T>::at(index_type idx) const
+    const T& ItemPool<T>::at(ItemPoolIndex idx) const
     {
         assert(contains(idx));
-        return m_slots.at(idx);
+        return m_slots.at(idx.index);
     }
     
     template<class T>
@@ -46,53 +46,60 @@ namespace do_ast {
     }
     
     template<class T>
-    typename ItemPool<T>::index_type ItemPool<T>::insert()
+    ItemPoolIndex ItemPool<T>::insert()
     {
         if (m_free_slot_ids.size() > 0)
         {
-            index_type new_idx = m_free_slot_ids.back();
+            ItemPoolIndex new_idx;
+            new_idx.index = m_free_slot_ids.back().index;
+            m_slot_smcs[new_idx.index]++;
+            new_idx.smc = m_slot_smcs[new_idx.index];
             m_free_slot_ids.pop_back();
-            m_occupied_slots[new_idx] = true;
+            m_occupied_slots[new_idx.index] = true;
             return new_idx;
         }
         else
         {
-            index_type new_idx = m_slots.size();
+            ItemPoolIndex new_idx;
+            new_idx.index = m_slots.size();
+            new_idx.smc = 1;
             m_slots.emplace_back();
+            m_slot_smcs.emplace_back(new_idx.smc);
             m_occupied_slots.push_back(true);
             return new_idx;
         }
     }
     
     template<class T>
-    typename ItemPool<T>::index_type ItemPool<T>::insert(const T& value)
+    ItemPoolIndex ItemPool<T>::insert(const T& value)
     {
-        index_type new_idx = insert();
-        m_slots[new_idx] = value;
+        ItemPoolIndex new_idx = insert();
+        m_slots[new_idx.index] = value;
         return new_idx;
     }
     
     template<class T>
     template<class... Args>
-    typename ItemPool<T>::index_type ItemPool<T>::emplace(Args... args)
+    ItemPoolIndex ItemPool<T>::emplace(Args... args)
     {
-        index_type new_idx = insert();
-        m_slots[new_idx] = T(args...);
+        ItemPoolIndex new_idx = insert();
+        m_slots[new_idx.index] = T(args...);
         return new_idx;
     }
     
     template<class T>
-    void ItemPool<T>::erase(index_type idx)
+    void ItemPool<T>::erase(ItemPoolIndex idx)
     {
-        if (!m_occupied_slots[idx]) return;
-        m_occupied_slots[idx] = false;
+        if (!m_occupied_slots[idx.index]) return;
+        m_slot_smcs[idx.index]++;
+        m_occupied_slots[idx.index] = false;
         m_free_slot_ids.push_back(idx);
     }
     
     template<class T>
-    bool ItemPool<T>::contains(index_type idx)
+    bool ItemPool<T>::contains(ItemPoolIndex idx) const
     {
-        return m_occupied_slots[idx];
+        return m_occupied_slots[idx.index] && (m_slot_smcs[idx.index] == idx.smc);
     }
 
 

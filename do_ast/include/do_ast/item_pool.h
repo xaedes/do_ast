@@ -4,28 +4,36 @@
 
 namespace do_ast {
 
+    struct ItemPoolIndex
+    {
+        std::size_t index = 0;
+        uint32_t smc = 0; // sequential modification counter
+    };
+    
+
     template<class T>
     struct ItemPool
     {
         using size_type = typename std::vector<T>::size_type;
-        using index_type = size_type;
-        
-        T& operator[](index_type idx);
-        const T& operator[](index_type idx) const;
-        T& at(index_type idx);
-        const T& at(index_type idx) const;
+        //using index_type = size_type;
+
+        T& get(ItemPoolIndex idx);
+        const T& get(ItemPoolIndex idx) const;
+        T& at(ItemPoolIndex idx);
+        const T& at(ItemPoolIndex idx) const;
         void clear();
         size_type size() const;
-        index_type insert();
-        index_type insert(const T& value);
-        template <class... Args> index_type emplace(Args... args);
-        void erase(index_type idx);
-        bool contains(index_type idx);
+        ItemPoolIndex insert();
+        ItemPoolIndex insert(const T& value);
+        template <class... Args> ItemPoolIndex emplace(Args... args);
+        void erase(ItemPoolIndex idx);
+        bool contains(ItemPoolIndex idx) const;
 
     protected:
         std::vector<T> m_slots;
+        std::vector<uint32_t> m_slot_smcs; // sequential modification counters
         std::vector<bool> m_occupied_slots;
-        std::vector<index_type> m_free_slot_ids;
+        std::vector<ItemPoolIndex> m_free_slot_ids;
     };
 
 } // namespace do_ast
