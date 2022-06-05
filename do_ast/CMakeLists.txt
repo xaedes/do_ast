@@ -19,7 +19,11 @@ target_include_directories(
 
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 
-set(EXAMPLE_NAMES eg00_basic)
+set(
+    EXAMPLE_NAMES 
+    eg00_basic
+    eg01_calculator
+)
 foreach(EXAMPLE_NAME IN LISTS EXAMPLE_NAMES)
     add_executable(${PROJECT_NAME}_${EXAMPLE_NAME} src/examples/${EXAMPLE_NAME}.cpp)
     target_link_libraries(${PROJECT_NAME}_${EXAMPLE_NAME} ${PROJECT_NAME})
