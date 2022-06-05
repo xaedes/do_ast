@@ -5,7 +5,7 @@
 namespace do_ast {
 
     template <class V>
-    void Ast::visit(ItemPoolIndex expr_idx, V& visitor)
+    void Ast::visit(V& visitor, ItemPoolIndex expr_idx)
     {
         auto* expr = get(expr_idx);
         if (expr == nullptr)

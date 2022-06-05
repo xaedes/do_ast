@@ -113,7 +113,7 @@ namespace do_ast {
             print_expr_type(expr_type);
             std::cout << "\n";
             ++current_indent;
-            ast.visit(arg1, *this);
+            ast.visit(*this, arg1);
             --current_indent;
 
         } 
@@ -127,8 +127,8 @@ namespace do_ast {
             print_expr_type(expr_type);
             std::cout << "\n";
             ++current_indent;
-            ast.visit(arg1, *this);
-            ast.visit(arg2, *this);
+            ast.visit(*this, arg1);
+            ast.visit(*this, arg2);
             --current_indent;
         } 
 
@@ -141,9 +141,9 @@ namespace do_ast {
             print_expr_type(expr_type);
             std::cout << "\n";
             ++current_indent;
-            ast.visit(arg1, *this);
-            ast.visit(arg2, *this);
-            ast.visit(arg3, *this);
+            ast.visit(*this, arg1);
+            ast.visit(*this, arg2);
+            ast.visit(*this, arg3);
             --current_indent;
         } 
 
@@ -156,10 +156,10 @@ namespace do_ast {
             print_expr_type(expr_type);
             std::cout << "\n";
             ++current_indent;
-            ast.visit(arg1, *this);
-            ast.visit(arg2, *this);
-            ast.visit(arg3, *this);
-            ast.visit(arg4, *this);
+            ast.visit(*this, arg1);
+            ast.visit(*this, arg2);
+            ast.visit(*this, arg3);
+            ast.visit(*this, arg4);
             --current_indent;
         } 
 

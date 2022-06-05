@@ -70,9 +70,9 @@ struct Calculator
         void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2) 
         { 
             std::cout << "(";
-            ast.visit(arg1, *this);
+            ast.visit(*this, arg1);
             std::cout << calc->str_expr_type[expr_type];
-            ast.visit(arg2, *this);
+            ast.visit(*this, arg2);
             std::cout << ")";
         } 
         void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2, ItemPoolIndex arg3) {} 
@@ -105,8 +105,8 @@ struct Calculator
         void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1) {} 
         void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2) 
         { 
-            ast.visit(arg1, *this);
-            ast.visit(arg2, *this);
+            ast.visit(*this, arg1);
+            ast.visit(*this, arg2);
             auto eval_1 = stack.back(); stack.pop_back();
             auto eval_2 = stack.back(); stack.pop_back();
             switch (expr_type)
@@ -143,16 +143,16 @@ int main(int argc, char **argv)
     Calculator calc;
     auto a = calc.mul( calc.add(calc.value(0.5f), calc.value(0.5f)), calc.value(10) );
 
-    calc.ast.visit(a, TreePrinterVisitor());
+    calc.ast.visit(TreePrinterVisitor(), a);
 
     std::cout << "\n";
 
-    calc.ast.visit(a, Calculator::PrintVisitor(calc));
+    calc.ast.visit(Calculator::PrintVisitor(calc), a);
 
     std::cout << " = ";
 
     Calculator::EvaluationVisitor eval(calc);
-    calc.ast.visit(a, eval);
+    calc.ast.visit(eval, a);
 
     std::cout  << eval.stack.back() << "\n";
 

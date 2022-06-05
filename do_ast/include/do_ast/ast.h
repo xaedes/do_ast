@@ -89,7 +89,7 @@ namespace do_ast {
             void with_value(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, const std::string& value) {} 
         };
 
-        template <class V = Visitor> void visit(ItemPoolIndex expr_idx, V& visitor);
+        template <class V = Visitor> void visit(V& visitor, ItemPoolIndex expr_idx);
 
         Expression* get(ItemPoolIndex expr_idx)
         {

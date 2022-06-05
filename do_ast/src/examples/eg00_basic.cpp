@@ -16,15 +16,15 @@ int main(int argc, char **argv)
     auto d = ast.create_with_value(0, true);
     auto e = ast.create_with_args(0, c, d);
 
-    ast.visit(e, TreePrinterVisitor());
+    ast.visit(TreePrinterVisitor(), e);
 
     ast.erase_expr_recursive(c);
 
-    ast.visit(e, TreePrinterVisitor());
+    ast.visit(TreePrinterVisitor(), e);
 
     auto f = ast.create_with_args(0, e);
 
-    ast.visit(f, TreePrinterVisitor());
+    ast.visit(TreePrinterVisitor(), f);
 
     return 0;
 }
