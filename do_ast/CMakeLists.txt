@@ -23,6 +23,8 @@ set(
     EXAMPLE_NAMES 
     eg00_basic
     eg01_calculator
+    eg02_benchmark
+    eg03_v2
 )
 foreach(EXAMPLE_NAME IN LISTS EXAMPLE_NAMES)
     add_executable(${PROJECT_NAME}_${EXAMPLE_NAME} src/examples/${EXAMPLE_NAME}.cpp)
