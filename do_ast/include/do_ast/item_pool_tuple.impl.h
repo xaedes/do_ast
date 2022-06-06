@@ -4,7 +4,13 @@
 
 namespace do_ast {
 
-    
+    template<class... Args>
+    ItemPoolIndex ItemPoolTuple<Args...>::index(std::size_t index) const
+    {
+        auto smc = index < m_slot_smcs.size() ? m_slot_smcs[index] : 0;
+        return ItemPoolIndex{index, smc};
+    }
+
     template<class... Args>
     template<std::size_t K>
     std::tuple_element_t<K, std::tuple<std::vector<Args>...>>& ItemPoolTuple<Args...>::slots()
@@ -157,7 +163,8 @@ namespace do_ast {
     template<class... Args>
     bool ItemPoolTuple<Args...>::contains(ItemPoolIndex idx) const
     {
-        return m_occupied_slots[idx.index] && (m_slot_smcs[idx.index] == idx.smc);
+        // return m_occupied_slots[idx.index] && (m_slot_smcs[idx.index] == idx.smc);
+        return (m_slot_smcs[idx.index] == idx.smc);
     }
 
     template<class... Args>

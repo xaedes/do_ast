@@ -35,6 +35,8 @@ namespace do_ast {
 
         template<class SlotsVisitor>
         void visit_slots(SlotsVisitor& slots_visitor);
+        
+        ItemPoolIndex index(std::size_t index) const;
 
     protected:
 

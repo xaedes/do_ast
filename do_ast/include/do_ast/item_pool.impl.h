@@ -4,6 +4,12 @@
 
 namespace do_ast {
 
+    template<class T>
+    ItemPoolIndex ItemPool<T>::index(std::size_t index) const
+    {
+        auto smc = index < m_slot_smcs.size() ? m_slot_smcs[index] : 0;
+        return ItemPoolIndex{index, smc};
+    }
     
     template<class T>
     T& ItemPool<T>::get(ItemPoolIndex idx)

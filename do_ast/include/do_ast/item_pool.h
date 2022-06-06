@@ -29,6 +29,8 @@ namespace do_ast {
         void erase(ItemPoolIndex idx);
         bool contains(ItemPoolIndex idx) const;
 
+        ItemPoolIndex index(std::size_t index) const;
+
     protected:
         std::vector<T> m_slots;
         std::vector<uint32_t> m_slot_smcs; // sequential modification counters

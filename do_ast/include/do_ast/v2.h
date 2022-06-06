@@ -56,6 +56,8 @@ namespace do_ast {
 
         Type type = Type::Void;
 
+        // uint8_t padding[12];
+
         Value()
         {
             // as_uint8.fill(0);
@@ -156,6 +158,7 @@ namespace do_ast {
         static_assert(std::is_copy_assignable<TypeClass>::value, "std::is_copy_assignable<TypeClass>");
         static_assert(std::is_copy_assignable<Value>::value, "std::is_copy_assignable<Value>");
         static_assert(std::is_copy_assignable<Relations>::value, "std::is_copy_assignable<Relations>");
+        // static_assert(sizeof(Value) % 16 == 0, "sizeof(Value) % 16 == 0");
         //ItemPoolTuple<TypeClass, Value> pool;
         ItemPoolTuple<TypeClass, Relations, Value> pool;
 
@@ -213,9 +216,17 @@ namespace do_ast {
                 Expression expr;
                 int depth;
                 bool done = false;
-            };
+                uint64_t _padding;
 
-            std::vector<StackItem> stack;
+                StackItem() = default;
+                StackItem(Expression expr, int depth) 
+                : expr(expr), depth(depth) {}
+            };
+            // std::cout << "sizeof(StackItem) " << sizeof(StackItem) << "\n";
+
+            static std::vector<StackItem> stack;
+            stack.clear();
+            stack.reserve(1024);
             stack.push_back({expr,0});
             while (!stack.empty())
             {
@@ -225,7 +236,7 @@ namespace do_ast {
                 auto idx = item.expr.index;
                 const auto& rel = relations[item.expr.index];
 
-                if (item.done)
+                if (item.done || (rel.num_args == 0))
                 {
                     cb(item.depth, item.expr, types[idx], rel, values[idx]);
                     stack.pop_back();
@@ -238,7 +249,8 @@ namespace do_ast {
                         auto arg = rel.args[rel.num_args-1-k];
                         if (pool.contains(arg))
                         {
-                            stack.push_back({arg, new_depth});
+                            // stack.push_back({arg, new_depth});
+                            stack.emplace_back(arg, new_depth);
                         }
                     }
                     // auto&item is invalidated after stack.push_back
