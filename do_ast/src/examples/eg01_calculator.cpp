@@ -2,6 +2,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <string>
+#include <cassert>
+#include <chrono>
 
 #include <do_ast/do_ast.h>
 #include <do_ast/item_pool.h>
@@ -106,8 +108,8 @@ struct Calculator
         void with_args(Ast& ast, ItemPoolIndex expr_idx, uint32_t expr_type, ItemPoolIndex arg1, ItemPoolIndex arg2) 
         { 
             ast.visit(*this, arg1);
-            ast.visit(*this, arg2);
             auto eval_1 = stack.back(); stack.pop_back();
+            ast.visit(*this, arg2);
             auto eval_2 = stack.back(); stack.pop_back();
             switch (expr_type)
             {
@@ -136,6 +138,64 @@ struct Calculator
     };    
 };
 
+template <class T>
+do_ast::ItemPoolIndex mk_long_add(Calculator& calc, T begin, T end)
+{
+    auto count = std::distance(begin, end);
+    if (count == 0)
+    {
+        return calc.value(0);
+    }
+    else if (count == 1)
+    {
+        return calc.value(*begin);
+    }
+    if (count == 2)
+    {
+        return calc.add(
+            calc.value(begin[0]),
+            calc.value(begin[1])
+        );
+    }
+    else
+    {
+        static std::vector<do_ast::ItemPoolIndex> s_exprs;
+        s_exprs.clear();
+        for(uint32_t idx = 0; idx < count; idx++)
+        {
+            s_exprs.push_back(calc.value(begin[idx]));
+        }
+        uint32_t last_start = 0;
+        uint32_t last_count = s_exprs.size();
+
+        while (last_count > 1)
+        {
+
+            for(uint32_t idx = 0; idx+1 < last_count; idx+=2)
+            {
+                auto a = s_exprs[last_start+idx];
+                auto b = s_exprs[last_start+idx+1];
+                s_exprs.push_back(calc.add(a,b));
+            }
+            if (last_count % 2 == 1)
+            {
+                s_exprs.push_back(s_exprs[last_start+last_count-1]);
+            }
+            last_start = last_start + last_count;
+            last_count = s_exprs.size() - last_start;
+            // last_count = count;
+        }
+        assert(last_count == 1);
+        auto result = s_exprs.back();
+        return result;
+
+        // return calc.add(
+        //     calc.value(begin[0]),
+        //     mk_long_add<T>(calc, begin+1, end)
+        // );
+    }
+}
+
 int main(int argc, char **argv)
 {
     using namespace do_ast;
@@ -156,6 +216,39 @@ int main(int argc, char **argv)
 
     std::cout  << eval.stack.back() << "\n";
 
+    std::vector<double> values;
+    values.resize(1024*1024);
+    for (auto i = 0; i < values.size(); ++i)
+    {
+        values[i] = i;
+    }
+    
+    auto b = mk_long_add(calc, values.begin(), values.end());
 
+    std::cout << "\n";
+
+    // calc.ast.visit(TreePrinterVisitor(), b);
+
+    std::cout << "\n";
+
+    // calc.ast.visit(Calculator::PrintVisitor(calc), b);
+    std::cout << " = ";
+    calc.ast.visit(eval, b);
+    std::cout  << eval.stack.back() << "\n";
+    
+    auto t0 = std::chrono::system_clock::now();
+    int num_it = 1024;
+    double sum = 0;
+    for (int i=0; i<num_it; ++i)
+    {
+        Calculator::EvaluationVisitor eval(calc);
+        calc.ast.visit(eval, b);
+        sum += eval.stack.back();
+    }
+    auto t1 = std::chrono::system_clock::now();
+    std::chrono::duration<double> d0 = t1-t0;
+    double fps0 = abs(d0.count()) > 1e-12 ? (num_it / d0.count()) : 0;
+    std::cout << "phase0: " << (d0.count() / num_it) * 1000 << " ms " << fps0 << " fps\n";
+    std::cout << " sum " << sum;
     return 0;
 }
