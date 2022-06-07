@@ -167,10 +167,10 @@ namespace do_ast {
         return (m_slot_smcs[idx.index] == idx.smc);
     }
 
-    template<class... Args>
+    template<class tuple_type_>
     struct TupleVisitor
     {
-        using tuple_type = std::tuple<Args...>;
+        using tuple_type = tuple_type_;
         using num_types = std::tuple_size<tuple_type>;
 
         template<class Visitor, std::size_t Idx, std::enable_if_t<(Idx < num_types::value), bool> = true>
@@ -184,12 +184,15 @@ namespace do_ast {
         {
         };
     };
+    
+    template<class... Args>
+    using TupleVisitor_ = TupleVisitor<std::tuple<Args...>>;
 
     template<class... Args>
     template<class SlotsVisitor>
     void ItemPoolTuple<Args...>::visit_slots(SlotsVisitor& slots_visitor)
     {
-        TupleVisitor<std::vector<Args>...> tuple_visitor;
+        TupleVisitor<tuple_type> tuple_visitor;
 
         tuple_visitor.visit<SlotsVisitor,0>(slots_visitor, m_slots);
     }
