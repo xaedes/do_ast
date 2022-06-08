@@ -5,100 +5,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include <do_ast/auto_padding.h>
+#include <do_ast/value_union.h>
 #include <do_ast/item_pool_tuple.h>
 
 namespace do_ast {
 
-    struct ValueUnion
-    {
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
-
-        template<class SmallType, class BigType = std::string>
-        using CountSmallInBig = std::integral_constant<
-            uint32_t, 
-            sizeof(BigType) / sizeof(SmallType)
-        >;
-
-        template<class SmallType, class BigType = std::string>
-        using ArrayOfSmallType = std::array<SmallType, CountSmallInBig<SmallType, BigType>::value>;
-        union
-        {
-            ArrayOfSmallType<void*   > as_void_ptr;
-            ArrayOfSmallType<bool    > as_bool;
-            ArrayOfSmallType<int8_t  > as_int8;
-            ArrayOfSmallType<uint8_t > as_uint8;
-            ArrayOfSmallType<int16_t > as_int16;
-            ArrayOfSmallType<uint16_t> as_uint16;
-            ArrayOfSmallType<int32_t > as_int32;
-            ArrayOfSmallType<uint32_t> as_uint32;
-            ArrayOfSmallType<int64_t > as_int64;
-            ArrayOfSmallType<uint64_t> as_uint64;
-            ArrayOfSmallType<float   > as_float;
-            ArrayOfSmallType<double  > as_double;
-            std::string as_string;
-        };
-
-        Type type = Type::Void;
-
-        // uint8_t padding[12];
-
-        ValueUnion()
-        {
-            // as_uint8.fill(0);
-        }
-        ValueUnion(Type type) : type(type) {}
-        ValueUnion(const ValueUnion& other)
-        {
-            as_uint8 = other.as_uint8;
-            type = other.type;
-        }
-        ValueUnion& operator=(const ValueUnion& other)
-        {
-            as_uint8 = other.as_uint8;
-            type = other.type;
-            return *this;
-        }
-        static ValueUnion Void    () { return ValueUnion(); }
-        static ValueUnion VoidPtr (void*    value) { ValueUnion result(Type::VoidPtr); result.as_void_ptr[0] = value; return result;}
-        static ValueUnion Bool    (bool     value) { ValueUnion result(Type::Bool);    result.as_bool[0] = value;     return result;}
-        static ValueUnion Int8    (int8_t   value) { ValueUnion result(Type::Int8);    result.as_int8[0] = value;     return result;}
-        static ValueUnion Uint8   (uint8_t  value) { ValueUnion result(Type::Uint8);   result.as_uint8[0] = value;    return result;}
-        static ValueUnion Int16   (int16_t  value) { ValueUnion result(Type::Int16);   result.as_int16[0] = value;    return result;}
-        static ValueUnion Uint16  (uint16_t value) { ValueUnion result(Type::Uint16);  result.as_uint16[0] = value;   return result;}
-        static ValueUnion Int32   (int32_t  value) { ValueUnion result(Type::Int32);   result.as_int32[0] = value;    return result;}
-        static ValueUnion Uint32  (uint32_t value) { ValueUnion result(Type::Uint32);  result.as_uint32[0] = value;   return result;}
-        static ValueUnion Int64   (int64_t  value) { ValueUnion result(Type::Int64);   result.as_int64[0] = value;    return result;}
-        static ValueUnion Uint64  (uint64_t value) { ValueUnion result(Type::Uint64);  result.as_uint64[0] = value;   return result;}
-        static ValueUnion Float   (float    value) { ValueUnion result(Type::Float);   result.as_float[0] = value;    return result;}
-        static ValueUnion Double  (double   value) { ValueUnion result(Type::Double);  result.as_double[0] = value;   return result;}
-        static ValueUnion String  (const std::string& value) { ValueUnion result(Type::String); result.as_string = value; return result;}
-        
-        ~ValueUnion()
-        {
-            if (type == Type::String)
-            {
-                as_string.~basic_string();
-            }
-        }
-
-    };
 
     // struct ItemPoolIndex
     // {
@@ -149,7 +60,7 @@ namespace do_ast {
     };
 
 
-    template<class TTypeClass = uint32_t, class TRelations = Relations_<ItemPoolIndex, 4>, class TValue = ValueUnion>
+    template<class TTypeClass = uint32_t, class TRelations = Relations_<ItemPoolIndex, 4>, class TValue = ValueUnion<sizeof(double)>>
     struct Expressions
     {
         using TypeClass = TTypeClass;
