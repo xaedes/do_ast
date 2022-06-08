@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <type_traits>
 
+#include <do_ast/auto_padding.h>
 #include <do_ast/item_pool_tuple.h>
 
 namespace do_ast {
@@ -104,12 +105,6 @@ namespace do_ast {
     //     std::size_t index = 0;
     //     uint32_t smc = 0; // sequential modification counter
     // };
-
-    template<uint32_t SizeOfPayload, uint32_t Alignment = 16>
-    using AutoPadding = std::enable_if_t<
-        ((SizeOfPayload % Alignment) != 0),
-        std::array<uint8_t, Alignment - (SizeOfPayload % Alignment)>
-    >;
 
     template<class TIndex, uint32_t TCount, class TNumArgs = uint32_t>
     struct Relations_
