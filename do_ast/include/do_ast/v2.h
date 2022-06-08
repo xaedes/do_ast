@@ -105,59 +105,65 @@ namespace do_ast {
     //     uint32_t smc = 0; // sequential modification counter
     // };
 
-    struct Relations
+    template<uint32_t SizeOfPayload, uint32_t Alignment = 16>
+    using AutoPadding = std::enable_if_t<
+        ((SizeOfPayload % Alignment) != 0),
+        std::array<uint8_t, Alignment - (SizeOfPayload % Alignment)>
+    >;
+
+    template<class TIndex, uint32_t TCount, class TNumArgs = uint32_t>
+    struct Relations_
     {
-        std::array<ItemPoolIndex, 4> args;
-        uint32_t num_args = 0;
-        uint8_t _padding[8];
+        using Index = TIndex;
+        using Count = std::integral_constant<uint32_t, TCount>;
+        using SizeOfPayload = std::integral_constant<uint32_t, TCount * sizeof(Index) + sizeof(TNumArgs)>;
+        using CountPadding = std::integral_constant<uint32_t, SizeOfPayload::value % 16>;
 
-        Relations() = default;
+        std::array<Index, TCount> args;
+        TNumArgs num_args = 0;
+        AutoPadding<SizeOfPayload::value, 16> _padding;
 
-        Relations(ItemPoolIndex arg0) 
-        : num_args(1) 
-        { args[0] = arg0; }
+        Relations_() = default;
 
-        Relations(ItemPoolIndex arg0, ItemPoolIndex arg1) 
-        : num_args(2) 
+        template<class Arg, class... Args>
+        Relations_(Arg arg, Args... more) 
         { 
-            args[0] = arg0;
-            args[1] = arg1;
+            set(arg, more...); 
         }
 
-        Relations(ItemPoolIndex arg0, ItemPoolIndex arg1, ItemPoolIndex arg2)
-         : num_args(3) 
-        { 
-            args[0] = arg0;
-            args[1] = arg1;
-            args[2] = arg2;
+        template<class... Args>
+        void set(Args... args)
+        {
+            static_assert((sizeof...(Args) <= TCount), "Too many arguments. Supports at most TCount arguments.");
+            set_<0>(args...);
         }
-        
-        Relations(ItemPoolIndex arg0, ItemPoolIndex arg1, ItemPoolIndex arg2, ItemPoolIndex arg3)
-         : num_args(4) 
-        { 
-            args[0] = arg0;
-            args[1] = arg1;
-            args[2] = arg2;
-            args[3] = arg3;
+
+    protected:
+        template<uint32_t Idx=0, class Arg, std::enable_if_t<(Idx < TCount), bool> = true>
+        void set_(Arg arg)
+        {
+            args[Idx] = arg;
+            num_args = Idx+1;
+        }
+        template<uint32_t Idx=0, class Arg, class Arg1, class... Args, std::enable_if_t<(Idx < TCount-1), bool> = true>
+        void set_(Arg arg, Arg1 next, Args... more)
+        {
+            args[Idx] = arg;
+            set_<Idx+1>(next, more...);
         }
     };
 
-    // template<class TypeClass = uint32_t>
-    // struct Expression
-    // {
-    //     Relations relations;
-    //     Value value;
-    //     TypeClass expr_type;
-    // };
 
-    template<class TypeClass_t = uint32_t>
+    template<class TTypeClass = uint32_t, class TRelations = Relations_<ItemPoolIndex, 4>>
     struct Expressions
     {
-        using TypeClass = TypeClass_t;
+        using TypeClass = TTypeClass;
+        using Relations = TRelations;
 
         static_assert(std::is_copy_assignable<TypeClass>::value, "std::is_copy_assignable<TypeClass>");
         static_assert(std::is_copy_assignable<Value>::value, "std::is_copy_assignable<Value>");
         static_assert(std::is_copy_assignable<Relations>::value, "std::is_copy_assignable<Relations>");
+        static_assert((sizeof(Relations) % 16 == 0),"sizeof(Relations) % 16 == 0");
         // static_assert(sizeof(Value) % 16 == 0, "sizeof(Value) % 16 == 0");
         //ItemPoolTuple<TypeClass, Value> pool;
         ItemPoolTuple<TypeClass, Relations, Value> pool;
@@ -258,58 +264,6 @@ namespace do_ast {
                 }
             }
         }
-        // template<class Callback>
-        // void traverse_in_order(Expression expr, Callback cb)
-        // {
-        //     // collect arguments with post order traversal 
-        //     // then call cb 'between' arguments
-            
-        //     const auto* types     = pool.slots<0>().data();
-        //     const auto* relations = pool.slots<1>().data();
-        //     const auto* values    = pool.slots<2>().data();
-
-        //     struct StackItem
-        //     {
-        //         int depth;
-        //         Expression expr;
-        //         TypeClass* type;
-        //         Relations* rel;
-        //         Value* val;
-        //     };
-        //     // std::vector<StackItem> stack;
-        //     traverse_post_order(expr,
-        //         [this, &cb, &stack, types, relations, values]
-        //         (auto depth, auto expr_id, auto& type, auto& rel, auto& val)
-        //         {
-        //             // TypeClass* rhs_type = nullptr;
-        //             // Relations* rhs_rel = nullptr;
-        //             // Value* rhs_val = nullptr;
-
-        //             for(int i=0; i<rel.num_args; ++i)
-        //             {
-        //                 int k = rel.num_args-1-i;
-        //                 auto arg = rel.args[k];
-        //                 // TypeClass* lhs_type = nullptr;
-        //                 Relations* lhs_rel = nullptr;
-        //                 // Value* lhs_val = nullptr;
-        //                 if (pool.contains(arg))
-        //                 {
-        //                     lhs_type = &types[arg.index];
-        //                     lhs_rel = &relations[arg.index];
-        //                     lhs_val = &values[arg.index];
-        //                 }
-        //                 cb(
-        //                     depth,
-        //                     &type, &rel, &val,
-        //                     lhs_type, lhs_rel, lhs_val,
-        //                     rhs_type, rhs_rel, rhs_val
-        //                 );
-        //             }
-        //             // stack.push_back({depth, expr_id, &type, &rel, &val});
-        //         }
-        //     );
-        // }
-
 
         template<class CallbackPre, class CallbackIn, class CallbackPost>
         void traverse_in_order(

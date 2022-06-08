@@ -11,6 +11,7 @@ namespace do_ast {
     struct Lisp
     {
         using Expression = typename Expressions<>::Expression;
+        using Relations = typename Expressions<>::Relations;
         Expressions<> exprs;
 
         Expression nil()
