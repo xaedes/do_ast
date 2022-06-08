@@ -9,7 +9,7 @@
 
 namespace do_ast {
 
-    struct Value
+    struct ValueUnion
     {
         enum class Type
         {
@@ -58,38 +58,38 @@ namespace do_ast {
 
         // uint8_t padding[12];
 
-        Value()
+        ValueUnion()
         {
             // as_uint8.fill(0);
         }
-        Value(Type type) : type(type) {}
-        Value(const Value& other)
+        ValueUnion(Type type) : type(type) {}
+        ValueUnion(const ValueUnion& other)
         {
             as_uint8 = other.as_uint8;
             type = other.type;
         }
-        Value& operator=(const Value& other)
+        ValueUnion& operator=(const ValueUnion& other)
         {
             as_uint8 = other.as_uint8;
             type = other.type;
             return *this;
         }
-        static Value Void    () { return Value(); }
-        static Value VoidPtr (void*    value) { Value result(Type::VoidPtr); result.as_void_ptr[0] = value; return result;}
-        static Value Bool    (bool     value) { Value result(Type::Bool);    result.as_bool[0] = value;     return result;}
-        static Value Int8    (int8_t   value) { Value result(Type::Int8);    result.as_int8[0] = value;     return result;}
-        static Value Uint8   (uint8_t  value) { Value result(Type::Uint8);   result.as_uint8[0] = value;    return result;}
-        static Value Int16   (int16_t  value) { Value result(Type::Int16);   result.as_int16[0] = value;    return result;}
-        static Value Uint16  (uint16_t value) { Value result(Type::Uint16);  result.as_uint16[0] = value;   return result;}
-        static Value Int32   (int32_t  value) { Value result(Type::Int32);   result.as_int32[0] = value;    return result;}
-        static Value Uint32  (uint32_t value) { Value result(Type::Uint32);  result.as_uint32[0] = value;   return result;}
-        static Value Int64   (int64_t  value) { Value result(Type::Int64);   result.as_int64[0] = value;    return result;}
-        static Value Uint64  (uint64_t value) { Value result(Type::Uint64);  result.as_uint64[0] = value;   return result;}
-        static Value Float   (float    value) { Value result(Type::Float);   result.as_float[0] = value;    return result;}
-        static Value Double  (double   value) { Value result(Type::Double);  result.as_double[0] = value;   return result;}
-        static Value String  (const std::string& value) { Value result(Type::String); result.as_string = value; return result;}
+        static ValueUnion Void    () { return ValueUnion(); }
+        static ValueUnion VoidPtr (void*    value) { ValueUnion result(Type::VoidPtr); result.as_void_ptr[0] = value; return result;}
+        static ValueUnion Bool    (bool     value) { ValueUnion result(Type::Bool);    result.as_bool[0] = value;     return result;}
+        static ValueUnion Int8    (int8_t   value) { ValueUnion result(Type::Int8);    result.as_int8[0] = value;     return result;}
+        static ValueUnion Uint8   (uint8_t  value) { ValueUnion result(Type::Uint8);   result.as_uint8[0] = value;    return result;}
+        static ValueUnion Int16   (int16_t  value) { ValueUnion result(Type::Int16);   result.as_int16[0] = value;    return result;}
+        static ValueUnion Uint16  (uint16_t value) { ValueUnion result(Type::Uint16);  result.as_uint16[0] = value;   return result;}
+        static ValueUnion Int32   (int32_t  value) { ValueUnion result(Type::Int32);   result.as_int32[0] = value;    return result;}
+        static ValueUnion Uint32  (uint32_t value) { ValueUnion result(Type::Uint32);  result.as_uint32[0] = value;   return result;}
+        static ValueUnion Int64   (int64_t  value) { ValueUnion result(Type::Int64);   result.as_int64[0] = value;    return result;}
+        static ValueUnion Uint64  (uint64_t value) { ValueUnion result(Type::Uint64);  result.as_uint64[0] = value;   return result;}
+        static ValueUnion Float   (float    value) { ValueUnion result(Type::Float);   result.as_float[0] = value;    return result;}
+        static ValueUnion Double  (double   value) { ValueUnion result(Type::Double);  result.as_double[0] = value;   return result;}
+        static ValueUnion String  (const std::string& value) { ValueUnion result(Type::String); result.as_string = value; return result;}
         
-        ~Value()
+        ~ValueUnion()
         {
             if (type == Type::String)
             {
@@ -154,11 +154,12 @@ namespace do_ast {
     };
 
 
-    template<class TTypeClass = uint32_t, class TRelations = Relations_<ItemPoolIndex, 4>>
+    template<class TTypeClass = uint32_t, class TRelations = Relations_<ItemPoolIndex, 4>, class TValue = ValueUnion>
     struct Expressions
     {
         using TypeClass = TTypeClass;
         using Relations = TRelations;
+        using Value = TValue;
 
         static_assert(std::is_copy_assignable<TypeClass>::value, "std::is_copy_assignable<TypeClass>");
         static_assert(std::is_copy_assignable<Value>::value, "std::is_copy_assignable<Value>");

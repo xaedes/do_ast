@@ -12,6 +12,7 @@ namespace do_ast {
     {
         using Expression = typename Expressions<>::Expression;
         using Relations = typename Expressions<>::Relations;
+        using Value = typename Expressions<>::Value;
         Expressions<> exprs;
 
         Expression nil()
