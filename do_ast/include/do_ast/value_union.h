@@ -9,6 +9,24 @@
 
 namespace do_ast {
 
+    enum class ValueUnionType
+    {
+        Void = 0,
+        String,
+        VoidPtr,
+        Bool,
+        Int8,
+        Uint8,
+        Int16,
+        Uint16,
+        Int32,
+        Uint32,
+        Int64,
+        Uint64,
+        Float,
+        Double
+    };
+
     template <
         uint32_t TMaxDataSize = sizeof(std::string), 
         uint32_t TAlignment = 1
@@ -17,24 +35,8 @@ namespace do_ast {
     {
         static_assert(TMaxDataSize * 8 >= 8, "TMaxDataSize * 8 >= 8");
 
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
-
+        using Type = ValueUnionType;
+        
         using Alignment = std::integral_constant<uint32_t, TAlignment>;
         using MaxDataSize = std::integral_constant<uint32_t, TMaxDataSize>;
 
@@ -92,23 +94,7 @@ namespace do_ast {
     {
         static_assert(TMaxDataSize * 8 >= 16, "TMaxDataSize * 8 >= 16");
 
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
+        using Type = ValueUnionType;
 
         using Alignment = std::integral_constant<uint32_t, TAlignment>;
         using MaxDataSize = std::integral_constant<uint32_t, TMaxDataSize>;
@@ -173,23 +159,7 @@ namespace do_ast {
     {
         static_assert(TMaxDataSize * 8 >= 32, "TMaxDataSize * 8 >= 32");
 
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
+        using Type = ValueUnionType;
 
         using Alignment = std::integral_constant<uint32_t, TAlignment>;
         using MaxDataSize = std::integral_constant<uint32_t, TMaxDataSize>;
@@ -263,23 +233,7 @@ namespace do_ast {
     {
         static_assert(TMaxDataSize * 8 >= 64, "TMaxDataSize * 8 >= 64");
 
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
+        using Type = ValueUnionType;
 
         using Alignment = std::integral_constant<uint32_t, TAlignment>;
         using MaxDataSize = std::integral_constant<uint32_t, TMaxDataSize>;
@@ -371,23 +325,7 @@ namespace do_ast {
     {
         static_assert(TMaxDataSize >= sizeof(std::string), "TMaxDataSize >= sizeof(std::string)");
 
-        enum class Type
-        {
-            Void = 0,
-            String,
-            VoidPtr,
-            Bool,
-            Int8,
-            Uint8,
-            Int16,
-            Uint16,
-            Int32,
-            Uint32,
-            Int64,
-            Uint64,
-            Float,
-            Double
-        };
+        using Type = ValueUnionType;
 
         using Alignment = std::integral_constant<uint32_t, TAlignment>;
         using MaxDataSize = std::integral_constant<uint32_t, TMaxDataSize>;
