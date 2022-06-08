@@ -173,13 +173,13 @@ namespace do_ast {
         using tuple_type = tuple_type_;
         using num_types = std::tuple_size<tuple_type>;
 
-        template<class Visitor, std::size_t Idx, std::enable_if_t<(Idx < num_types::value), bool> = true>
+        template<class Visitor, std::size_t Idx=0, std::enable_if_t<(Idx < num_types::value), bool> = true>
         void visit(Visitor& visitor, tuple_type& tuple)
         {
             visitor.visit<Idx>(std::get<Idx>(tuple));
             visit<Visitor,Idx+1>(visitor, tuple);
         };
-        template<class Visitor, std::size_t Idx, std::enable_if_t<(Idx >= num_types::value), bool> = true>
+        template<class Visitor, std::size_t Idx=0, std::enable_if_t<(Idx >= num_types::value), bool> = true>
         void visit(Visitor& visitor, tuple_type& tuple)
         {
         };
@@ -194,7 +194,7 @@ namespace do_ast {
     {
         TupleVisitor<tuple_type> tuple_visitor;
 
-        tuple_visitor.visit<SlotsVisitor,0>(slots_visitor, m_slots);
+        tuple_visitor.visit<SlotsVisitor>(slots_visitor, m_slots);
     }
 
 
