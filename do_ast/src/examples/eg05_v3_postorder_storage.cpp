@@ -46,6 +46,7 @@ struct Nodes
     std::vector<NodeId> next;
     std::vector<NodeId> next_or_up;
     std::vector<NodeId> next_preorder;
+    std::vector<NodeId> skip_preorder; 
     
     Node& operator[](NodeId id) { return postorder[id]; }
     const Node& operator[](NodeId id) const { return postorder[id]; }
@@ -66,6 +67,8 @@ struct Nodes
         prev.push_back(i);
         next.push_back(i);
         next_or_up.push_back(i);
+        next_preorder.push_back(i);
+        skip_preorder.push_back(i);
         
         set_up(i, args...);
         set_down(i, args...);
@@ -76,16 +79,6 @@ struct Nodes
         m_preorder_valid = false;
         m_depth_valid = false;
         return i;
-    }
-    
-    NodeId compute_next_postorder(NodeId id) const { return id + 1; }
-    NodeId compute_next_preorder(NodeId id) const 
-    { 
-        return (
-            (num_args[id]==0)
-            ? next_or_up[id]
-            : down[id]
-        );
     }
     
     bool is_next_preorder_valid() const { return m_next_preorder_valid; }
@@ -101,11 +94,46 @@ struct Nodes
     
     void build_next_preorder()
     {
+        build_next_preorder(root_id());
+    }
+    void build_next_preorder(NodeId root)
+    {
         if (is_preorder_valid()) return;
         next_preorder.resize(size());
-        for (NodeId id = 0; id < size(); ++id)
+        NodeId last = root;
+        NodeId here = root;
+        for(Size ctr = 0; ctr < size(); ++ctr)
         {
-            next_preorder[id] = compute_next_preorder(id);
+            bool has_next = (next[here] != here);
+            if (has_next)
+            {
+                skip_preorder[here] = next[here];
+            }
+            else
+            {
+                skip_preorder[here] = skip_preorder[up[here]];
+            }
+            if (num_args[here] > 0)
+            {
+                next_preorder[here] = down[here];
+                here = down[here];
+            }
+            else
+            {
+                if(skip_preorder[here] == skip_preorder[root])
+                {
+                    // reached root
+                    // i.e. no further iteration
+                    skip_preorder[here] = here; 
+                    next_preorder[here] = here;
+                    break;
+                }
+                else
+                {
+                    next_preorder[here] = skip_preorder[here];
+                    here = skip_preorder[here];
+                }
+            }
         }
         m_next_preorder_valid = true;
     }
@@ -145,21 +173,17 @@ struct Nodes
         if (!is_next_preorder_valid()) build_next_preorder();
         
         depth.resize(size());
+        // depth[root] = 0;
         NodeId current = root;
-        Depth current_depth = depth[current];
         for(Size ctr = 0; ctr < size(); ++ctr)
         {
-            depth[current] = current_depth;
-            if (num_args[current]>0)
-            {
-                ++current_depth;
-            }
             NodeId next = next_preorder[current];
             if (next == current)
             {
                 break;
             }
             current = next;
+            depth[current] = depth[up[current]]+1;
         }
         m_depth_valid = true;
     }
@@ -363,10 +387,18 @@ void print_postorder(const TNodes& nodes)
     {
         auto node = nodes[idx];
         auto nargs = nodes.num_args[idx];
+        std::cout << "#:" << idx << " ";
         std::cout << "t:" << node.type << " ";
         std::cout << "v:" << node.value << " ";
-        std::cout << "n:" << nargs << "\n";
+        std::cout << "a:" << nargs << " ";
+        std::cout << "n:" << nodes.next[idx] << " ";
+        std::cout << "u:" << nodes.up[idx] << " ";
+        std::cout << "d:" << nodes.down[idx] << " ";
+        //std::cout << "nu:" << nodes.next_or_up[idx] << " ";
+        std::cout << "nx:" << nodes.next_preorder[idx] << " ";
+        std::cout << "\n";
     }
+    std::cout << "---\n";
 }
 
 template<class TNodes>
@@ -386,22 +418,25 @@ void print_preorder(const TNodes& nodes, const std::string& indent="  ")
         std::cout << "d:" << depth << " ";
         std::cout << "t:" << node.type << " ";
         std::cout << "v:" << node.value << " ";
-        std::cout << "n:" << nargs << "\n";
+        std::cout << "a:" << nargs << "\n";
     }
-
+    std::cout << "---\n";
 }
 
 int main() {
     Nodes<> n;
-    n({1,0}, n({0,0}), n({0,0}));
-    print_postorder(n);
+     n({1,0}, n({0,1}), n({0,2}));
+    //n({2,0}, n({1,0}, n({0,1}), n({0,2})), n({0,3}));
     n.build();
+    print_postorder(n);
     print_preorder(n);
     
     Calculator c;
-    auto e = c(0.1) + c(2.4);
+    auto e = (c(0.1) + c(2.4)) * c(2.3);
     c.nodes.build();
+    print_postorder(c.nodes);
     print_preorder(c.nodes);
 
     std::cout << c.eval() << "\n";
+    std::cout << ((0.1) + (2.4)) * (2.3) << "\n";
 }
