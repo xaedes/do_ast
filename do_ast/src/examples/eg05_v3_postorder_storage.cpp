@@ -99,7 +99,8 @@ struct Calculator
     {
         static std::vector<double> stack;
         stack.clear();
-        for(int idx=0; idx < nodes.size(); ++idx)
+        auto nsize = nodes.size();
+        for(int idx=0; idx < nsize; ++idx)
         {
             const auto& node = nodes[idx];
             switch(node.type)
@@ -140,6 +141,165 @@ struct Calculator
         assert(stack.size() == 1);
         return stack.back();
 
+    }
+
+    Expr simplify(Calculator& out)
+    {
+        return simplify(out, nodes.root_id());
+    }
+    Expr simplify(Calculator& out, NodeId id)
+    {
+        assert(&out != this);
+        const auto& node = nodes[id];
+        switch(node.type)
+        {
+            case Calculator::Type::Val: 
+            {
+                return out(node.value);
+            }
+            case Calculator::Type::Add: 
+            {
+                auto arg1 = nodes.down[id];
+                auto arg2 = nodes.next[arg1];
+                const auto& n1 = nodes[arg1];
+                const auto& n2 = nodes[arg2];
+                bool n1_is_zero = (
+                    (n1.type == Calculator::Type::Val)
+                 && (n1.value == 0)
+                );
+                bool n2_is_zero = (
+                    (n2.type == Calculator::Type::Val)
+                 && (n2.value == 0)
+                );
+                if (n1_is_zero && n2_is_zero)
+                {
+                    return out(0);
+                }
+                else if (n1_is_zero && !n2_is_zero)
+                {
+                    return simplify(out, arg2);
+                }
+                else if (!n1_is_zero && n2_is_zero)
+                {
+                    return simplify(out, arg1);
+                }
+                else
+                {
+                    auto o1 = simplify(out, arg1);
+                    auto o2 = simplify(out, arg2);
+                    return out.add(o1, o2);
+                }
+                break;
+            }
+            case Calculator::Type::Sub: 
+            {
+                auto arg1 = nodes.down[id];
+                auto arg2 = nodes.next[arg1];
+                const auto& n1 = nodes[arg1];
+                const auto& n2 = nodes[arg2];
+                bool n1_is_zero = (
+                    (n1.type == Calculator::Type::Val)
+                 && (n1.value == 0)
+                );
+                bool n2_is_zero = (
+                    (n2.type == Calculator::Type::Val)
+                 && (n2.value == 0)
+                );
+                if (n1_is_zero && n2_is_zero)
+                {
+                    return out(0);
+                }
+                else if (!n1_is_zero && n2_is_zero)
+                {
+                    return simplify(out, arg1);
+                }
+                else
+                {
+                    auto o1 = simplify(out, arg1);
+                    auto o2 = simplify(out, arg2);
+                    return out.sub(o1, o2);
+                }
+                break;
+            }
+            case Calculator::Type::Mul: 
+            {
+                auto arg1 = nodes.down[id];
+                auto arg2 = nodes.next[arg1];
+                const auto& n1 = nodes[arg1];
+                const auto& n2 = nodes[arg2];
+                bool n1_is_zero = (
+                    (n1.type == Calculator::Type::Val)
+                 && (n1.value == 0)
+                );
+                bool n2_is_zero = (
+                    (n2.type == Calculator::Type::Val)
+                 && (n2.value == 0)
+                );
+                bool n1_is_one = (
+                    (n1.type == Calculator::Type::Val)
+                 && (n1.value == 1)
+                );
+                bool n2_is_one = (
+                    (n2.type == Calculator::Type::Val)
+                 && (n2.value == 1)
+                );
+                bool any_zero = (n1_is_zero || n2_is_zero);
+
+                if (any_zero)
+                {
+                    return out(0);
+                }
+                else if (n1_is_one && n2_is_one)
+                {
+                    return out(1);
+                }
+                else if (n1_is_one && !n2_is_one)
+                {
+                    return simplify(out, arg2);
+                }
+                else if (!n1_is_one && n2_is_one)
+                {
+                    return simplify(out, arg1);
+                }
+                else
+                {
+                    auto o1 = simplify(out, arg1);
+                    auto o2 = simplify(out, arg2);
+                    return out.mul(o1, o2);
+                }
+                break;
+            }
+            case Calculator::Type::Div: 
+            {
+                auto arg1 = nodes.down[id];
+                auto arg2 = nodes.next[arg1];
+                const auto& n1 = nodes[arg1];
+                const auto& n2 = nodes[arg2];
+                bool n1_is_one = (
+                    (n1.type == Calculator::Type::Val)
+                 && (n1.value == 1)
+                );
+                bool n2_is_one = (
+                    (n2.type == Calculator::Type::Val)
+                 && (n2.value == 1)
+                );
+                if (n1_is_one && n2_is_one)
+                {
+                    return out(1);
+                }
+                else if (n2_is_one)
+                {
+                    return simplify(out, arg1);
+                }
+                else
+                {
+                    auto o1 = simplify(out, arg1);
+                    auto o2 = simplify(out, arg2);
+                    return out.div(o1, o2);
+                }
+                break;
+            }
+        }
     }
 };
 
@@ -245,7 +405,7 @@ int main() {
 
     // note: eg03 measured only add expressions in tight loop, but with scattered mem access
     
-    values.resize(1024*1024);   //  eg03: 1.37246e+08 fps, eg05: 5.70746e+08 fps
+    // values.resize(1024*1024);   //  eg03: 1.37246e+08 fps, eg05: 5.70746e+08 fps
     // values.resize(1024*128);    //  eg03: 2.85103e+08 fps, eg05: 6.2889e+08 fps
     // values.resize(1024*16);     //  eg03: 4.67046e+08 fps, eg05: 6.29774e+08 fps
     // values.resize(1024*4);      //  eg03: 5.71082e+08 fps, eg05: 6.18016e+08 fps
@@ -254,7 +414,7 @@ int main() {
       // values.resize(1024);        //  eg03: 7.16236e+08 fps, eg05: 6.15694e+08 fps
     // values.resize(512);         //  eg03: 7.46908e+08 fps, eg05: 6.06257e+08 fps
     // values.resize(256);         //  eg03: 8.19056e+08 fps <- optimal, eg05: 6.07088e+08 fps
-    // values.resize(128);         //  eg03: 7.87498e+08 fps, eg05: 6.1159e+08 fps
+    values.resize(128);         //  eg03: 7.87498e+08 fps, eg05: 6.1159e+08 fps
 
 
     // values.resize(128);
@@ -266,7 +426,7 @@ int main() {
 
     // int num_it = 128;
     
-    int num_it = 1024;
+    // int num_it = 1024;
     // int num_it = 1024*8;
     // int num_it = 1024*8*8;
     // int num_it = 1024*8*8*4;
@@ -275,7 +435,7 @@ int main() {
     // int num_it = 1024*8*8*4*4*2;
     // int num_it = 1024*8*8*4*4*2*2;
     // int num_it = 1024*8*8*4*4*2*2*2;
-    // int num_it = 1024*8*8*4*4*8;
+    int num_it = 1024*8*8*4*4*8;
 
     Calculator clongadd;
     auto longadd = recursiveDeepAdd(clongadd, values.data(), values.data() + values.size());
@@ -313,4 +473,14 @@ int main() {
     // std::cout << " sum3 " << sum3 << "\n";
 
     std::cout << "---" << "\n";
+
+    c.clear();
+    e = (c(0) + (c(2.5)/c(1))) * c(1) + c(3);
+    c.nodes.build();
+    print_preorder(c.nodes);
+
+    Calculator csimple;
+    auto simple = c.simplify(csimple, e.id);
+    csimple.nodes.build();
+    print_preorder(csimple.nodes);
 }
