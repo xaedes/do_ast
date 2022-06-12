@@ -58,7 +58,7 @@ namespace do_ast {
             down.clear();
             prev.clear();
             next.clear();
-            next_or_up.clear();
+            // next_or_up.clear();
             next_preorder.clear();
             skip_preorder.clear();
             m_next_preorder_valid = true;
@@ -85,7 +85,7 @@ namespace do_ast {
             down.push_back(i);
             prev.push_back(i);
             next.push_back(i);
-            next_or_up.push_back(i);
+            // next_or_up.push_back(i);
             next_preorder.push_back(i);
             skip_preorder.push_back(i);
             
@@ -249,13 +249,13 @@ namespace do_ast {
         template<class Arg>
         void set_next(NodeId parent, Arg arg)
         {
-            next_or_up[arg] = parent;
+            // next_or_up[arg] = parent;
         }
         template<class Arg1, class Arg2, class... Args>
         void set_next(NodeId parent, Arg1 arg1,  Arg2 arg2, Args... more)
         {
             next[arg1] = arg2;
-            next_or_up[arg1] = arg2;
+            // next_or_up[arg1] = arg2;
             set_next(parent, arg2, more...);
         }
     };
