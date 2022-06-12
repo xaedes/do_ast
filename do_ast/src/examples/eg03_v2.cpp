@@ -308,10 +308,10 @@ int main(int argc, char **argv)
 
     auto t0 = std::chrono::system_clock::now();
     ScalarType sum0 = 0;
-     for (int i=0; i<num_it; ++i)
-     {
-         sum0 += EvaluateAdd(expr);
-     }
+    for (int i=0; i<num_it; ++i)
+    {
+        sum0 += EvaluateAdd(expr);
+    }
     auto t1 = std::chrono::system_clock::now();
     ScalarType sum1 = 0;
     for (int i=0; i<num_it; ++i)
