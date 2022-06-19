@@ -7,7 +7,7 @@ add_library(
     ${PROJECT_NAME} 
     STATIC
 
-    src/ast.cpp
+    src/v1_ast.cpp
 )
 
 target_include_directories(

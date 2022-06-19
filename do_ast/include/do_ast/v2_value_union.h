@@ -8,6 +8,7 @@
 #include <do_ast/auto_padding.h>
 
 namespace do_ast {
+namespace v2 {
 
     enum class ValueUnionType
     {
@@ -445,4 +446,5 @@ namespace do_ast {
         >
     >;
 
+} // namespace v2
 } // namespace do_ast

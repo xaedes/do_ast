@@ -5,12 +5,12 @@
 #include <cassert>
 #include <chrono>
 
-#include <do_ast/do_ast.h>
+#include <do_ast/v1.h>
 #include <do_ast/item_pool.h>
 
 struct Calculator
 {
-    using Ast = do_ast::Ast;
+    using Ast = do_ast::v1::Ast;
     using ItemPoolIndex = do_ast::ItemPoolIndex;
     
     Ast ast;
@@ -198,7 +198,7 @@ do_ast::ItemPoolIndex mk_long_add(Calculator& calc, T begin, T end)
 
 int main(int argc, char **argv)
 {
-    using namespace do_ast;
+    using namespace do_ast::v1;
 
     Calculator calc;
     auto a = calc.mul( calc.add(calc.value(0.5f), calc.value(0.5f)), calc.value(10) );

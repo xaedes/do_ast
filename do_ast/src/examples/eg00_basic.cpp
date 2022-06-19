@@ -1,12 +1,12 @@
 
 #include <iostream>
 
-#include <do_ast/do_ast.h>
+#include <do_ast/v1.h>
 #include <do_ast/item_pool.h>
 
 int main(int argc, char **argv)
 {
-    using namespace do_ast;
+    using namespace do_ast::v1;
 
     Ast ast;
 

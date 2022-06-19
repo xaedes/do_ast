@@ -10,6 +10,7 @@
 #include <do_ast/item_pool.h>
 
 namespace do_ast {
+namespace v1 {
 
     struct Expression
     {
@@ -153,6 +154,7 @@ namespace do_ast {
     };
 
 
+} // namespace v1
 } // namespace do_ast
 
-#include <do_ast/ast.impl.h>
+#include <do_ast/v1_ast.impl.h>

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <do_ast/ast.h>
+#include <do_ast/v1_ast.h>
 
 namespace do_ast {
+namespace v1 {
 
     template <class V>
     void Ast::visit(V& visitor, ItemPoolIndex expr_idx)
@@ -118,4 +119,5 @@ namespace do_ast {
     }
 
 
+} // namespace v1
 } // namespace do_ast

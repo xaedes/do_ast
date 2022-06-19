@@ -105,11 +105,12 @@ int main(int argc, char **argv)
         std::cout << pool.get<1>(a) << "\n";
     }
 
-    Expressions<> exprs;
+    using Expressions = do_ast::v2::Expressions<>;
+    using Expression = typename Expressions::Expression;
+    using Relations = typename Expressions::Relations;
+    using Value = typename Expressions::Value;
 
-    using Expression = typename Expressions<>::Expression;
-    using Relations = typename Expressions<>::Relations;
-    using Value = typename Expressions<>::Value;
+    Expressions exprs;
 
     auto null_val = exprs.insert(0);
     auto a = exprs.insert(0, Relations(), Value::Float(0.5f));

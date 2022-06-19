@@ -5,10 +5,11 @@
 #include <cstdint>
 #include <type_traits>
 
-#include <do_ast/value_union.h>
+#include <do_ast/v2_value_union.h>
 #include <do_ast/item_pool_tuple.h>
 
 namespace do_ast {
+namespace v2 {
 
 
     // struct ItemPoolIndex
@@ -269,4 +270,5 @@ namespace do_ast {
 
     };
 
+} // namespace v2
 } // namespace do_ast

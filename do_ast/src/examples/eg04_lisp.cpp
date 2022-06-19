@@ -10,10 +10,11 @@ namespace do_ast {
 
     struct Lisp
     {
-        using Expression = typename Expressions<>::Expression;
-        using Relations = typename Expressions<>::Relations;
-        using Value = typename Expressions<>::Value;
-        Expressions<> exprs;
+        using Expressions = do_ast::v2::Expressions<>;
+        using Expression = typename Expressions::Expression;
+        using Relations = typename Expressions::Relations;
+        using Value = typename Expressions::Value;
+        Expressions exprs;
 
         Expression nil()
         {

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <iostream>
-#include <do_ast/ast.h>
 #include <do_ast/item_pool.h>
+#include <do_ast/v1_ast.h>
 
 namespace do_ast {
+namespace v1 {
 
     struct TreePrinterVisitor
     {
@@ -331,4 +332,6 @@ namespace do_ast {
 
     };
 
+} // namespace v1
 } // namespace do_ast
+

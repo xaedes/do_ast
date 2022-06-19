@@ -1,7 +1,8 @@
 
-#include <do_ast/ast.h>
+#include <do_ast/v1_ast.h>
 
 namespace do_ast {
+namespace v1 {
 
     ItemPoolIndex Ast::create(
         uint32_t expr_type
@@ -314,4 +315,5 @@ namespace do_ast {
     }
 
 
+} // namespace v1
 } // namespace do_ast
