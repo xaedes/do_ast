@@ -8,7 +8,7 @@
 #include <chrono>
 
 #include "mk_reduction.h"
-#include <do_ast/nodes_reverse_postorder.h>
+#include <do_ast/nodes_postorder.h>
 
 
 struct Calculator
@@ -22,7 +22,7 @@ struct Calculator
         Div
     };
 
-    using CalcNodes = do_ast::NodesReversePostorder<do_ast::TypeValue<Type, double>>;
+    using CalcNodes = do_ast::NodesPostorder<do_ast::TypeValue<Type, double>>;
     using Node = typename CalcNodes::Node;
     using NodeId = typename CalcNodes::NodeId;
 
@@ -115,29 +115,29 @@ struct Calculator
                     break;
                 case Calculator::Type::Add: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-1]
-                      + stack[stack.size()-2]
+                        stack[stack.size()-2]
+                      + stack[stack.size()-1]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Sub: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-1]
-                      - stack[stack.size()-2]
+                        stack[stack.size()-2]
+                      - stack[stack.size()-1]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Mul: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-1]
-                      * stack[stack.size()-2]
+                        stack[stack.size()-2]
+                      * stack[stack.size()-1]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Div: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-1]
-                      / stack[stack.size()-2]
+                        stack[stack.size()-2]
+                      / stack[stack.size()-1]
                     );
                     stack.pop_back(); 
                     break;
@@ -378,28 +378,39 @@ Calculator::Expr recursiveDeepAdd(
     else
     {
         auto mid = begin + count / 2;
-        auto rhs = recursiveDeepAdd(calc, mid, end);
         auto lhs = recursiveDeepAdd(calc, begin, mid);
+        auto rhs = recursiveDeepAdd(calc, mid, end);
         return calc.add(lhs, rhs);
     }
 }
 
 int main() {
     std::cout << "size(Calculator::Node) " << sizeof(Calculator::Node) << "\n";
-    do_ast::NodesReversePostorder<> n;
-     n.add_node({1,0}, n.add_node({0,1}), n.add_node({0,2}));
+    do_ast::NodesPostorder<> n;
+    {
+        auto a = n.add_node({0,1});
+        auto b = n.add_node({0,2});
+        auto c = n.add_node({1,0}, a, b);
+    }
     //n({2,0}, n({1,0}, n({0,1}), n({0,2})), n({0,3}));
     n.build();
     print_postorder(n);
     print_preorder(n);
     
-    Calculator c;
-    auto e = (c(0.1) + c(2.4)) * c(2.3);
-    c.nodes.build();
-    print_postorder(c.nodes);
-    print_preorder(c.nodes);
+    Calculator calc;
+    {
+        // create in post order
+        auto a = calc(0.1);
+        auto b = calc(2.4);
+        auto c = a + b;
+        auto d = calc(2.3);
+        auto e = c * d;
+    }
+    calc.nodes.build();
+    print_postorder(calc.nodes);
+    print_preorder(calc.nodes);
 
-    std::cout << c.eval() << "\n";
+    std::cout << calc.eval() << "\n";
     std::cout << ((0.1) + (2.4)) * (2.3) << "\n";
 
     // std::vector<Operation> operations;
@@ -479,13 +490,25 @@ int main() {
 
     std::cout << "---" << "\n";
 
-    c.clear();
-    e = (c(0) + (c(2.5)/c(1))) * c(1) + c(3);
-    c.nodes.build();
-    print_preorder(c.nodes);
+    calc.clear();
+    {
+        // create in post order
+        // e = (calc(0) + (calc(2.5)/calc(1))) * calc(1) + calc(3);
+        auto a = calc(0);
+        auto b = calc(2.5);
+        auto c = calc(1);
+        auto d = b / c;
+        auto e = a + d;
+        auto f = calc(1);
+        auto g = e * f;
+        auto h = calc(3);
+        auto i = g + h;
+    }
+    calc.nodes.build();
+    print_preorder(calc.nodes);
 
     Calculator csimple;
-    auto simple = c.simplify(csimple, e.id);
+    auto simple = calc.simplify(csimple, calc.nodes.root_id());
     csimple.nodes.build();
     print_preorder(csimple.nodes);
 }
