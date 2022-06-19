@@ -57,9 +57,14 @@ struct Calculator
         nodes.clear();
     }
 
-    Expr operator()(double value)
+    Expr operator()(double val)
     {
-        NodeId id = nodes(Node{Type::Val, value});
+        return value(val);
+    }
+
+    Expr value(double val)
+    {
+        NodeId id = nodes.add_node(Node{Type::Val, val});
         return {this, id};
     }
 
@@ -67,7 +72,7 @@ struct Calculator
     {
         assert(lhs.calc == this);
         assert(rhs.calc == this);
-        NodeId id = nodes(Node{Type::Add, initial_value}, lhs.id, rhs.id);
+        NodeId id = nodes.add_node(Node{Type::Add, initial_value}, lhs.id, rhs.id);
         return {this, id};
     }
 
@@ -75,7 +80,7 @@ struct Calculator
     {
         assert(lhs.calc == this);
         assert(rhs.calc == this);
-        NodeId id = nodes(Node{Type::Sub, initial_value}, lhs.id, rhs.id);
+        NodeId id = nodes.add_node(Node{Type::Sub, initial_value}, lhs.id, rhs.id);
         return {this, id};
     }
 
@@ -83,7 +88,7 @@ struct Calculator
     {
         assert(lhs.calc == this);
         assert(rhs.calc == this);
-        NodeId id = nodes(Node{Type::Mul, initial_value}, lhs.id, rhs.id);
+        NodeId id = nodes.add_node(Node{Type::Mul, initial_value}, lhs.id, rhs.id);
         return {this, id};
     }
 
@@ -91,7 +96,7 @@ struct Calculator
     {
         assert(lhs.calc == this);
         assert(rhs.calc == this);
-        NodeId id = nodes(Node{Type::Div, initial_value}, lhs.id, rhs.id);
+        NodeId id = nodes.add_node(Node{Type::Div, initial_value}, lhs.id, rhs.id);
         return {this, id};
     }
 
@@ -382,7 +387,7 @@ Calculator::Expr recursiveDeepAdd(
 int main() {
     std::cout << "size(Calculator::Node) " << sizeof(Calculator::Node) << "\n";
     do_ast::NodesPostorder<> n;
-     n({1,0}, n({0,1}), n({0,2}));
+     n.add_node({1,0}, n.add_node({0,1}), n.add_node({0,2}));
     //n({2,0}, n({1,0}, n({0,1}), n({0,2})), n({0,3}));
     n.build();
     print_postorder(n);

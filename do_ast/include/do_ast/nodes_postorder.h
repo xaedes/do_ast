@@ -75,7 +75,7 @@ namespace do_ast {
         
         Size size() const { return postorder.size(); }
         template<class... Args>
-        NodeId operator()(const Node& node, Args... args)
+        NodeId add_node(const Node& node, Args... args)
         {
             NodeId i = postorder.size();
             num_args.push_back(sizeof...(Args));
