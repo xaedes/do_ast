@@ -36,17 +36,23 @@ namespace do_ast {
         using Depth = TDepth;
         using Size = TSize;
 
+        // minimum information necessary
         std::vector<Node> postorder;
         std::vector<Size> num_args;
-        std::vector<Depth> depth;
-        std::vector<NodeId> preorder;
+
+        // pointers allowing traversal in any direction
         std::vector<NodeId> up;
         std::vector<NodeId> down;
         std::vector<NodeId> prev;
         std::vector<NodeId> next;
-        // std::vector<NodeId> next_or_up;
+
+        // preorder related
+        std::vector<Depth> depth;
+        std::vector<NodeId> preorder;
         std::vector<NodeId> next_preorder;
         std::vector<NodeId> skip_preorder; 
+
+        // std::vector<NodeId> next_or_up;
         
         void clear()
         {
