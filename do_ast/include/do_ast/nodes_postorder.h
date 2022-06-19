@@ -99,6 +99,7 @@ namespace do_ast {
             set_down(i, args...);
             set_prev(i, args...);
             set_next(i, args...);
+            assert_postorder(i, args...);
             
             m_next_preorder_valid = false;
             m_preorder_valid = false;
@@ -255,24 +256,29 @@ namespace do_ast {
         template<class Arg>
         void set_next(NodeId parent, Arg arg)
         {
-            // next_or_up[arg] = parent;
-
-            const bool args_postordered = (parent > arg);
-            assert(args_postordered);
-
         }
         template<class Arg1, class Arg2, class... Args>
         void set_next(NodeId parent, Arg1 arg1,  Arg2 arg2, Args... more)
         {
             next[arg1] = arg2;
-            // next_or_up[arg1] = arg2;
-
-            const bool args_postordered = (arg1 < arg2);
-            assert(args_postordered);
-
             set_next(parent, arg2, more...);
         }
 
+        void assert_postorder(NodeId parent)
+        {}
+        template<class Arg>
+        void assert_postorder(NodeId parent, Arg arg)
+        {
+            const bool args_postordered = (parent > arg);
+            assert(args_postordered);
+        }
+        template<class Arg1, class Arg2, class... Args>
+        void assert_postorder(NodeId parent, Arg1 arg1,  Arg2 arg2, Args... more)
+        {
+            const bool args_postordered = (arg1 < arg2);
+            assert(args_postordered);
+            assert_postorder(parent, arg2, more...);
+        }
     };
 
 } // namespace do_ast
