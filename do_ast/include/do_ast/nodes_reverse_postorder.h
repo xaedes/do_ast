@@ -44,7 +44,7 @@ namespace do_ast {
         std::vector<NodeId> down;
         std::vector<NodeId> prev;
         std::vector<NodeId> next;
-        std::vector<NodeId> next_or_up;
+        // std::vector<NodeId> next_or_up;
         std::vector<NodeId> next_preorder;
         std::vector<NodeId> skip_preorder; 
         
