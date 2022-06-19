@@ -78,20 +78,34 @@ namespace do_ast {
         
         NodeId root_id() const { return size() - 1; }
         Node& root() { return postorder.back(); }
+
+        NodeId insert()
+        {
+            NodeId i = postorder.size();
+            postorder.emplace_back();
+            num_args.emplace_back();
+            return i;
+        };
+        
+        NodeId insert(const Node& node, Size num_args = 0)
+        {
+            auto i = insert();
+            this->postorder[i] = node;
+            this->num_args[i] = num_args;
+            return i;
+        };
         
         Size size() const { return postorder.size(); }
         template<class... Args>
         NodeId add_node(const Node& node, Args... args)
         {
-            NodeId i = postorder.size();
-            num_args.push_back(sizeof...(Args));
-            depth.push_back(0);
-            postorder.push_back(node);
+            NodeId i = insert(node, sizeof...(Args));
             up.push_back(i);
             down.push_back(i);
             prev.push_back(i);
             next.push_back(i);
             // next_or_up.push_back(i);
+            depth.push_back(0);
             next_preorder.push_back(i);
             skip_preorder.push_back(i);
             
