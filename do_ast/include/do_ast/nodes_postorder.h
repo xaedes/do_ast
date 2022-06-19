@@ -256,6 +256,10 @@ namespace do_ast {
         {
             next[arg1] = arg2;
             // next_or_up[arg1] = arg2;
+
+            const bool args_postordered = (parent > arg1) && (arg1 > arg2);
+            assert(args_postordered);
+
             set_next(parent, arg2, more...);
         }
     };
