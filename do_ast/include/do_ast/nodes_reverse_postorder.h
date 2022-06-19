@@ -16,9 +16,9 @@ namespace do_ast {
         class TDepth = uint32_t, 
         class TSize = int64_t
     >
-    struct NodesPostorder
+    struct NodesReversePostorder
     {
-        // store tree in post order 
+        // store tree in reverse post order (i.e. first arg2, then arg1, then node for node with two arguments arg1,arg2)
 
         // inspired by https://stackoverflow.com/a/28643465/798588 which suggests storing ordered by preorder for preorder recursion.
         // during construction by code the items are in a natural postorder.

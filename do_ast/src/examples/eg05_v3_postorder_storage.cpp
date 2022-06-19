@@ -8,7 +8,7 @@
 #include <chrono>
 
 #include "mk_reduction.h"
-#include <do_ast/nodes_postorder.h>
+#include <do_ast/nodes_reverse_postorder.h>
 
 
 struct Calculator
@@ -22,7 +22,7 @@ struct Calculator
         Div
     };
 
-    using CalcNodes = do_ast::NodesPostorder<do_ast::TypeValue<Type, double>>;
+    using CalcNodes = do_ast::NodesReversePostorder<do_ast::TypeValue<Type, double>>;
     using Node = typename CalcNodes::Node;
     using NodeId = typename CalcNodes::NodeId;
 
@@ -115,29 +115,29 @@ struct Calculator
                     break;
                 case Calculator::Type::Add: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-2]
-                      + stack[stack.size()-1]
+                        stack[stack.size()-1]
+                      + stack[stack.size()-2]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Sub: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-2]
-                      - stack[stack.size()-1]
+                        stack[stack.size()-1]
+                      - stack[stack.size()-2]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Mul: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-2]
-                      * stack[stack.size()-1]
+                        stack[stack.size()-1]
+                      * stack[stack.size()-2]
                     );
                     stack.pop_back(); 
                     break;
                 case Calculator::Type::Div: 
                     stack[stack.size()-2] = (
-                        stack[stack.size()-2]
-                      / stack[stack.size()-1]
+                        stack[stack.size()-1]
+                      / stack[stack.size()-2]
                     );
                     stack.pop_back(); 
                     break;
@@ -378,15 +378,15 @@ Calculator::Expr recursiveDeepAdd(
     else
     {
         auto mid = begin + count / 2;
-        auto lhs = recursiveDeepAdd(calc, begin, mid);
         auto rhs = recursiveDeepAdd(calc, mid, end);
+        auto lhs = recursiveDeepAdd(calc, begin, mid);
         return calc.add(lhs, rhs);
     }
 }
 
 int main() {
     std::cout << "size(Calculator::Node) " << sizeof(Calculator::Node) << "\n";
-    do_ast::NodesPostorder<> n;
+    do_ast::NodesReversePostorder<> n;
      n.add_node({1,0}, n.add_node({0,1}), n.add_node({0,2}));
     //n({2,0}, n({1,0}, n({0,1}), n({0,2})), n({0,3}));
     n.build();
