@@ -27,6 +27,7 @@ set(
     eg03_v2
     eg04_lisp
     eg05_v3_postorder_storage
+    eg06_v3_nodes
 )
 foreach(EXAMPLE_NAME IN LISTS EXAMPLE_NAMES)
     add_executable(${PROJECT_NAME}_${EXAMPLE_NAME} src/examples/${EXAMPLE_NAME}.cpp)
