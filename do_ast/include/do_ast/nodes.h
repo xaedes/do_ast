@@ -11,13 +11,13 @@ namespace do_ast {
 } // namespace do_ast
 
 
-#define FORWARD_FIRST_RETURN(return_type, fname, the_function)  \
+#define DO_AST_FORWARD_FIRST_RETURN(return_type, fname, the_function)  \
     return_type fname()                                         \
     {                                                           \
         return visit_struct::get<0>(*this).##the_function();    \
     }
 
-#define FORWARD_CALL(fname, the_function)      \
+#define DO_AST_FORWARD_CALL(fname, the_function)      \
     void fname()                               \
     {                                          \
         visit_struct::for_each(                \
@@ -29,7 +29,7 @@ namespace do_ast {
         );                                     \
     }
 
-#define FORWARD_CALL_PRE(fname, the_function, pre_f)  \
+#define DO_AST_FORWARD_CALL_PRE(fname, the_function, pre_f)  \
     void fname()                                      \
     {                                                 \
         pre_f                                         \
@@ -42,7 +42,7 @@ namespace do_ast {
         );                                            \
     }
 
-#define FORWARD_CALL_TEMPLATED_ARGS(fname, the_function)                    \
+#define DO_AST_FORWARD_CALL_TEMPLATED_ARGS(fname, the_function)                    \
     template<class... ForwardedArgs>                                        \
     void fname(ForwardedArgs&&... args)                                     \
     {                                                                       \
@@ -55,7 +55,7 @@ namespace do_ast {
         );                                                                  \
     }
 
-#define FORWARD_CALL_TEMPLATED_ARGS_PRE(fname, the_function, pre_f)         \
+#define DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(fname, the_function, pre_f)         \
     template<class... ForwardedArgs>                                        \
     void fname(ForwardedArgs&&... args)                                     \
     {                                                                       \
@@ -69,26 +69,26 @@ namespace do_ast {
         );                                                                  \
     }
 
-#define RETURN_IF_NOT_ENABLED if (!enabled) return;
-#define RETURN_INVALID_INDEX_IF_NOT_ENABLED if (!enabled) return InvalidIndex();
+#define DO_AST_RETURN_IF_NOT_ENABLED() if (!enabled) return;
+#define DO_AST_RETURN_INVALID_INDEX_IF_NOT_ENABLED() if (!enabled) return InvalidIndex();
 
 
 
-#define CONTAINER_FORWARDS()                                                \
-    FORWARD_FIRST_RETURN(Size, size, size);                                 \
-    FORWARD_FIRST_RETURN(Size, capacity, capacity);                         \
-    FORWARD_CALL_PRE(clear, clear, RETURN_IF_NOT_ENABLED);                  \
-    FORWARD_CALL_PRE(emplace_back, emplace_back, RETURN_IF_NOT_ENABLED);    \
-    FORWARD_CALL_TEMPLATED_ARGS_PRE(resize, resize, RETURN_IF_NOT_ENABLED); 
+#define DO_AST_CONTAINER_FORWARDS()                                                \
+    DO_AST_FORWARD_FIRST_RETURN(Size, size, size);                                 \
+    DO_AST_FORWARD_FIRST_RETURN(Size, capacity, capacity);                         \
+    DO_AST_FORWARD_CALL_PRE(clear, clear, DO_AST_RETURN_IF_NOT_ENABLED());                  \
+    DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());    \
+    DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(resize, resize, DO_AST_RETURN_IF_NOT_ENABLED()); 
 
-#define CONTAINER(default_enabled)  \
-    CONTAINER_FORWARDS()            \
+#define DO_AST_CONTAINER(default_enabled)  \
+    DO_AST_CONTAINER_FORWARDS()            \
     bool enabled = default_enabled; \
     Version shape_version = 0;      \
     Version content_version = 0;
 
-#define CONTAINER_DEFAULT() CONTAINER(true)
-#define CONTAINER_OPTIONAL() CONTAINER(false)
+#define DO_AST_CONTAINER_DEFAULT() DO_AST_CONTAINER(true)
+#define DO_AST_CONTAINER_OPTIONAL() DO_AST_CONTAINER(false)
 
 
 template<
@@ -144,13 +144,13 @@ struct Nodes_
     
     struct Items
     {
-        CONTAINER_DEFAULT()
+        DO_AST_CONTAINER_DEFAULT()
         Container<Node> items;
     };
 
     struct Neighbors
     {
-        CONTAINER_DEFAULT()
+        DO_AST_CONTAINER_DEFAULT()
         Container<Index> up;
         Container<Index> down;
         Container<Index> prev;
@@ -159,7 +159,7 @@ struct Nodes_
         template<class... Args>
         void set_children(Index parent, Args... children)
         {
-            RETURN_IF_NOT_ENABLED
+            DO_AST_RETURN_IF_NOT_ENABLED()
             ::set_children_from_args(
                 [this](auto idx, auto val){ up[idx] = val; },
                 [this](auto idx, auto val){ down[idx] = val; },
@@ -175,7 +175,7 @@ struct Nodes_
 
     struct NeighborsPacked
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         struct Neighbors
         {
             Index up;
@@ -188,7 +188,7 @@ struct Nodes_
         template<class... Args>
         void set_children(Index parent, Args... children)
         {
-            RETURN_IF_NOT_ENABLED
+            DO_AST_RETURN_IF_NOT_ENABLED()
             ::set_children_from_args(
                 [this](auto idx, auto val){ neighbors[idx].up = val; },
                 [this](auto idx, auto val){ neighbors[idx].down = val; },
@@ -204,48 +204,48 @@ struct Nodes_
 
     struct TraversePreorder
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Index> next;
         Container<Index> skip;
     };
 
     struct TraversePostorder
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Index> next;
     };
 
     struct SortedPreorder
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Index> indices;
     };
 
     struct SortedPostorder
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Index> indices;
     };
 
     struct Depth
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Size> depth;
     };
 
     struct NumChildren
     {
-        CONTAINER_OPTIONAL()
+        DO_AST_CONTAINER_OPTIONAL()
         Container<Size> num_children;
         template<class... Args>
         void set_children(Index parent, Args... children)
         {
-            RETURN_IF_NOT_ENABLED
+            DO_AST_RETURN_IF_NOT_ENABLED()
             num_children[parent] = sizeof...(Args);
         }        
     };
 
-    CONTAINER_DEFAULT()
+    DO_AST_CONTAINER_DEFAULT()
 
     Items             items;
     Neighbors         neighbors;
@@ -259,7 +259,7 @@ struct Nodes_
 
     Index insert()
     {
-        RETURN_INVALID_INDEX_IF_NOT_ENABLED
+        DO_AST_RETURN_INVALID_INDEX_IF_NOT_ENABLED()
         Index new_id = size();
         emplace_back();
         return new_id;
@@ -267,7 +267,7 @@ struct Nodes_
 
     Index insert(const Node& node)
     {
-        RETURN_INVALID_INDEX_IF_NOT_ENABLED
+        DO_AST_RETURN_INVALID_INDEX_IF_NOT_ENABLED()
         Index new_id = insert();
         if (items.enabled)
         {
@@ -279,14 +279,14 @@ struct Nodes_
     template<class... Args>
     void set_children(Index parent, Args... children)
     {
-        RETURN_IF_NOT_ENABLED
+        DO_AST_RETURN_IF_NOT_ENABLED()
         neighbors.set_children(parent, children...);
         neighbors_packed.set_children(parent, children...);
         num_children.set_children(parent, children...);
     }
 };
 
-#define REGISTER_NODES(TheNodesType)                                                                                                                               \
+#define DO_AST_REGISTER_NODES(TheNodesType)                                                                                                                               \
 VISITABLE_STRUCT(TheNodesType, items, neighbors, neighbors_packed, traverse_preorder, traverse_postorder, sorted_preorder, sorted_postorder, depth, num_children); \
 VISITABLE_STRUCT(TheNodesType::Items,             items);                                                                                                          \
 VISITABLE_STRUCT(TheNodesType::Neighbors,         up, down, prev, next);                                                                                           \

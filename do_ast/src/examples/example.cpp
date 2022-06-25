@@ -18,7 +18,7 @@ struct Node
 
 using Nodes = Nodes_<Node>;
 
-REGISTER_NODES(Nodes);
+DO_AST_REGISTER_NODES(Nodes);
 
 int main(int argc, char **argv)
 {
