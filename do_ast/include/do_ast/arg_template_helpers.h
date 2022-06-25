@@ -6,9 +6,7 @@ namespace do_ast {
 
     struct visit_n_args_impl
     {
-        template<
-            int N, int K, class F
-        >
+        template<int N, int K, class F>
         static void call(F f)
         {}
         
@@ -29,20 +27,15 @@ namespace do_ast {
         static void call(F f, Args... args)
         {
         }
-        
-
     };
+
     struct foldl_args_impl
     {
-        template<
-            int N, int K, class F
-        >
+        template<int N, int K, class F>
         static void call(F f)
         {}
 
-        template<
-            int N, int K, class F, class Arg
-        >
+        template<int N, int K, class F, class Arg>
         static void call(F f, Arg arg)
         {}
 
