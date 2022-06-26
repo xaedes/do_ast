@@ -194,6 +194,18 @@ namespace do_ast {
         visit_n_args<sizeof...(Args)>(f, args...);
     }
 
+    template<int First, int Last, class F, class... Args>
+    void visit_args_between(F f, Args... args)
+    {
+        drop_args<First>(
+            [&f](auto... result)
+            {
+                visit_n_args<1+Last-First>(f, result...);
+            },
+            args...
+        );
+    }
+
     template<int N, class F, class... Args>
     void n_foldl_args(F f, Args... args)
     {

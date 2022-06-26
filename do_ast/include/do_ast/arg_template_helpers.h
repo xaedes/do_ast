@@ -19,6 +19,9 @@ namespace do_ast {
     template<int N, class F, class... Args>
     void visit_n_args(F f, Args... args);
 
+    template<int First, int Last, class F, class... Args>
+    void visit_args_between(F f, Args... args);
+
     template<class F, class... Args>
     void visit_args(F f, Args... args);
 
