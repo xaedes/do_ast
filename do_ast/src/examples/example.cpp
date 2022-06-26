@@ -45,5 +45,20 @@ int main(int argc, char **argv)
     nodes.set_children(b);
     nodes.set_children(c, a, b);
 
+    auto Foo = [](auto... args)
+    {
+        do_ast::visit_args([](auto arg){
+            std::cout << " " << arg;
+        }, args...);
+        std::cout << "\n";
+    };
+
+    do_ast::drop_args<1>(Foo, 1, 2, 3);
+    do_ast::reverse_args(Foo, 1, 2);
+    do_ast::reverse_args(Foo, 1, 2, 3, 4, 5, 6);
+    do_ast::take_args<4>(Foo, 1, 2, 3, 4, 5, 6);
+    do_ast::visit_args_between<2,3>(Foo, 1, 2, 3, 4, 5, 6);
+
+
     return 0;
 }
