@@ -16,7 +16,7 @@ struct Node
     double value;
 };
 
-using Nodes = Nodes_<Node>;
+using Nodes = do_ast::Nodes_<Node>;
 
 DO_AST_REGISTER_NODES(Nodes);
 
