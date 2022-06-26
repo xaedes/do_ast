@@ -4,6 +4,88 @@
 
 namespace do_ast {
 
+    struct drop_args_impl
+    {
+        template<int D, class F>
+        static void call(F f)
+        {
+            f();
+        }
+
+        template<
+            int D, class F, class Arg, class... Args,
+            std::enable_if_t<(D > 0), bool> = true
+        >
+        static void call(F f, Arg arg, Args... args)
+        {
+            call<D-1>(f, args...);
+        }
+        
+        template<
+            int D, class F, class... Args,
+            std::enable_if_t<(D == 0), bool> = true
+        >
+        static void call(F f, Args... args)
+        {
+            f(args...);
+        }
+    };
+
+    struct reverse_args_impl
+    {
+        template<class F>
+        static void call(F f)
+        {
+            f();
+        }
+
+        template<
+            class F, class Arg, class... Args
+        >
+        static void call(F f, Arg arg, Args... args)
+        {
+            reverse_args([&f,&arg](auto... rargs){
+                f(rargs..., arg);
+            }, args...);
+        }
+    };
+
+    struct take_args_impl
+    {
+        template<int N, class F>
+        static void call(F f)
+        {
+            f();
+        }
+
+        template<
+            int N, class F, class... Args
+        >
+        static void call(F f, Args... args)
+        {
+            reverse_args(
+                [&f](auto... rargs)
+                {
+                    drop_args<sizeof...(Args) - N>(
+                        [&f](auto... rargs_dropped)
+                        {
+                            reverse_args(
+                                [&f](auto... result)
+                                {
+                                    f(result...);
+                                }, 
+                                rargs_dropped...
+                            );
+                        }, 
+                        rargs...
+                    );
+                }, 
+                args...
+            );
+        }
+        
+    };
+
     struct visit_args_impl
     {
         template<int N, int K, class F>
@@ -81,6 +163,24 @@ namespace do_ast {
             return call<I+1>(rest...);
         }
     };
+
+    template<int D, class F, class... Args>
+    void drop_args(F f, Args... args)
+    {
+        drop_args_impl::call<D>(f, args...);
+    }
+
+    template<int N, class F, class... Args>
+    void take_args(F f, Args... args)
+    {
+        take_args_impl::call<N>(f, args...);
+    }
+
+    template<class F, class... Args>
+    void reverse_args(F f, Args... args)
+    {
+        reverse_args_impl::call(f, args...);
+    }
 
     template<int N, class F, class... Args>
     void visit_n_args(F f, Args... args)

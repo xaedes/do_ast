@@ -7,6 +7,15 @@
 namespace do_ast {
 
 
+    template<int D, class F, class... Args>
+    void drop_args(F f, Args... args);
+
+    template<int N, class F, class... Args>
+    void take_args(F f, Args... args);
+
+    template<class F, class... Args>
+    void reverse_args(F f, Args... args);
+
     template<int N, class F, class... Args>
     void visit_n_args(F f, Args... args);
 
