@@ -9,7 +9,7 @@
 #include <do_ast/do_ast.h>
 #include <do_ast/benchmark.h>
 #include <do_ast/arg_template_helpers.h>
-#include <do_ast/nodes.h>
+#include <do_ast/v1_nodes.h>
 #include <do_ast/visit_struct/visit_struct.h>
 
 struct Node
@@ -18,7 +18,7 @@ struct Node
     int value;
 };
 
-using Nodes = do_ast::Nodes_<Node>;
+using Nodes = do_ast::NodesV1_<Node>;
 
 // DO_AST_REGISTER_NODES(Nodes);
 

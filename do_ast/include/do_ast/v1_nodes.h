@@ -14,7 +14,7 @@ namespace do_ast {
         template<class...> class TContainer = std::vector,
         bool TEnableDebug = false
     >
-    struct Nodes_
+    struct NodesV1_
     {
         using Node       = TNode;
         using Index      = TIndex;
