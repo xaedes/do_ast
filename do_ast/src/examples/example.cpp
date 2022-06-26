@@ -15,12 +15,12 @@
 struct Node
 {
     int type;
-    double value;
+    int value;
 };
 
 using Nodes = do_ast::Nodes_<Node>;
 
-DO_AST_REGISTER_NODES(Nodes);
+// DO_AST_REGISTER_NODES(Nodes);
 
 int main(int argc, char **argv)
 {
@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     Nodes nodes;
     // nodes.enabled = true;
     // nodes.items.enabled = true;
-    nodes.enabled = true;
+    // nodes.enabled = true;
     nodes.resize(10);
     std::cout << nodes.size() << std::endl;
     // nodes.items.enabled = false;
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     nodes.clear();
     std::cout << nodes.size() << std::endl;
 
-    nodes.num_children.enabled = true;
+    // nodes.num_children.enabled = true;
 
     auto a = nodes.insert(Node{0,0});
     auto b = nodes.insert(Node{0,0});
@@ -68,14 +68,96 @@ int main(int argc, char **argv)
         do_ast::take_args<4>(Foo, 1, 2, 3, 4, 5, 6);
         do_ast::visit_args_between<2,3>(Foo, 1, 2, 3, 4, 5, 6);
     });
-
-    nodes.reserve(1024*1024);
+    #define BENCHMARK_ITERATIONS 1024
+    // #define BENCHMARK_ITERATIONS 1024*128
+    // #define BENCHMARK_NODES_COUNT 1024
+    #define BENCHMARK_NODES_COUNT 1024*1024
+    nodes.reserve(BENCHMARK_NODES_COUNT);
     nodes.clear();
-    benchmark.benchmark(100, "insert_nodes", [&nodes](){
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert(Node{i,i+0.0})", [&nodes](){
         nodes.clear();
-        for(int i = 0; i < 1024*1024; ++i)
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
         {
-            nodes.insert(Node{i,i+0.0});
+            nodes.insert(Node{i,i+0});
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert_fast(Node{i,i+0})", [&nodes](){
+        nodes.clear();
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            nodes.insert_fast(Node{i,i+0});
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert()", [&nodes](){
+        nodes.clear();
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            nodes.insert();
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert_fast()", [&nodes](){
+        nodes.clear();
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            nodes.insert_fast();
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert(node)", [&nodes](){
+        nodes.clear();
+        Node node;
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            nodes.insert(node);
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "nodes.insert_fast(node)", [&nodes](){
+        nodes.clear();
+        Node node;
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            nodes.insert_fast(node);
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "ptr[i] = node", [&nodes](){
+        nodes.resize(BENCHMARK_NODES_COUNT);
+        Node node;
+        Node* ptr = &nodes.node(0);
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            ptr[i] = node;
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "ptr[i] = Node{i,i+0}", [&nodes](){
+        nodes.resize(BENCHMARK_NODES_COUNT);
+        Node* ptr = &nodes.node(0);
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            ptr[i] = Node{i,i+0};
+        }
+    });
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "ptr[i].xyz = xyz", [&nodes](){
+        nodes.resize(BENCHMARK_NODES_COUNT);
+        Node* ptr = &nodes.node(0);
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            ptr[i].type = i;
+            ptr[i].value = i + 0;
+        }
+    });
+    std::vector<int> node_types;
+    std::vector<int> node_values;
+    node_types.reserve(BENCHMARK_NODES_COUNT);
+    node_values.reserve(BENCHMARK_NODES_COUNT);
+
+    benchmark.benchmark(BENCHMARK_ITERATIONS, "xyz_ptr[i] = xyz", [&node_types, &node_values](){
+        node_types.resize(BENCHMARK_NODES_COUNT);
+        node_values.resize(BENCHMARK_NODES_COUNT);
+        auto* types_ptr = node_types.data();
+        auto* values_ptr = node_values.data();
+        for(int i = 0; i < BENCHMARK_NODES_COUNT; ++i)
+        {
+            types_ptr[i] = i;
+            values_ptr[i] = i + 0;
         }
     });
 
