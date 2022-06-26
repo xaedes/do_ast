@@ -108,6 +108,32 @@ void set_children_from_args(
     Args... children
 )
 {
+    // do_ast::visit_args_between<0,0>(
+    //     [&first, &children...](auto first_child)
+    //     {
+    //         do_ast::visit_args(
+    //             [&first, &first_child](auto child)
+    //             {
+    //                 first(child, first_child);
+    //             },
+    //             children...
+    //         );
+    //     }, 
+    //     children...
+    // );
+    // do_ast::visit_args_between<sizeof...(Args)-1,sizeof...(Args)-1>(
+    //     [&last, &children...](auto last_child)
+    //     {
+    //         do_ast::visit_args(
+    //             [&last, &last_child](auto child)
+    //             {
+    //                 last(child, last_child);
+    //             },
+    //             children...
+    //         );
+    //     }, 
+    //     children...
+    // );
     // auto first_child = do_ast::get_nth_arg<0>(children...);
     // if (sizeof...(children) == 0)
     // {
@@ -214,6 +240,20 @@ struct Nodes_
         }
 
     };
+
+    // struct ChildrenListInfo
+    // {
+    //     DO_AST_CONTAINER_OPTIONAL()
+
+    //     // info of childlist accessible for each children
+    //     // i.e. children can access info about their list by using their nodeid
+
+    //     Container<Index> first;
+    //     Container<Index> middle;
+    //     Container<Index> last;
+    //     Container<Index> child_idx;
+
+    // };
 
     struct TraversePreorder
     {
