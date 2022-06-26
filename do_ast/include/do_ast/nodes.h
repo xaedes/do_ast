@@ -78,7 +78,6 @@ namespace do_ast {
     DO_AST_FORWARD_FIRST_RETURN(Size, size, size);                                 \
     DO_AST_FORWARD_FIRST_RETURN(Size, capacity, capacity);                         \
     DO_AST_FORWARD_CALL_PRE(clear, clear, DO_AST_RETURN_IF_NOT_ENABLED());                  \
-    DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());    \
     DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(resize, resize, DO_AST_RETURN_IF_NOT_ENABLED()); 
 
 #define DO_AST_CONTAINER(default_enabled)  \
@@ -96,20 +95,24 @@ template<
     class SetDown,
     class SetPrev,
     class SetNext,
+    // class SetFirst,
+    // class SetLast,
     class Index,
     class... Args
 >
 void set_children_from_args(
-    SetUp up, SetDown down, SetPrev prev, SetNext next, 
-    Index invalid_index,
+    SetUp up, SetDown down, 
+    SetPrev prev, SetNext next, 
+    // SetFirst first, SetLast last, 
     Index parent,
     Args... children
 )
 {
-    if (sizeof...(children) == 0)
-    {
-        down(parent, invalid_index);
-    }
+    // auto first_child = do_ast::get_nth_arg<0>(children...);
+    // if (sizeof...(children) == 0)
+    // {
+    //     down(parent, invalid_index);
+    // }
     do_ast::visit_n_args<1>([&down, parent](auto item){
         down(parent, item);
     }, children...);
@@ -120,9 +123,9 @@ void set_children_from_args(
         prev(rhs, lhs);
         next(lhs, rhs);
     }, children...);
-    up(parent, invalid_index);
-    next(parent, invalid_index);
-    prev(parent, invalid_index);
+    // up(parent, invalid_index);
+    // next(parent, invalid_index);
+    // prev(parent, invalid_index);
 }
 
 template <
@@ -141,11 +144,14 @@ struct Nodes_
     template<class...Args> using Container  = TContainer<Args...>;
 
     static Index InvalidIndex() { return std::numeric_limits<Index>::max(); }
+    static Size InvalidSize() { return std::numeric_limits<Size>::max(); }
     
     struct Items
     {
         DO_AST_CONTAINER_DEFAULT()
+        DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());
         Container<Node> items;
+        
     };
 
     struct Neighbors
@@ -165,23 +171,31 @@ struct Nodes_
                 [this](auto idx, auto val){ down[idx] = val; },
                 [this](auto idx, auto val){ prev[idx] = val; },
                 [this](auto idx, auto val){ next[idx] = val; },
-                InvalidIndex(),
                 parent,
                 children...
             );
         }
 
+        void emplace_back()
+        {
+            up.emplace_back(InvalidIndex());
+            down.emplace_back(InvalidIndex());
+            prev.emplace_back(InvalidIndex());
+            next.emplace_back(InvalidIndex());
+        }
     };
 
     struct NeighborsPacked
     {
         DO_AST_CONTAINER_OPTIONAL()
+        DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());
+
         struct Neighbors
         {
-            Index up;
-            Index down;
-            Index prev;
-            Index next;
+            Index up = InvalidIndex();
+            Index down = InvalidIndex();
+            Index prev = InvalidIndex();
+            Index next = InvalidIndex();
         };
         Container<Neighbors> neighbors;
 
@@ -194,7 +208,6 @@ struct Nodes_
                 [this](auto idx, auto val){ neighbors[idx].down = val; },
                 [this](auto idx, auto val){ neighbors[idx].prev = val; },
                 [this](auto idx, auto val){ neighbors[idx].next = val; },
-                InvalidIndex(),
                 parent,
                 children...
             );
@@ -207,30 +220,62 @@ struct Nodes_
         DO_AST_CONTAINER_OPTIONAL()
         Container<Index> next;
         Container<Index> skip;
+
+        void emplace_back()
+        {
+            next.emplace_back(InvalidIndex());
+            skip.emplace_back(InvalidIndex());
+        }
+
     };
 
     struct TraversePostorder
     {
         DO_AST_CONTAINER_OPTIONAL()
         Container<Index> next;
+
+        void emplace_back()
+        {
+            next.emplace_back(InvalidIndex());
+        }
     };
 
     struct SortedPreorder
     {
         DO_AST_CONTAINER_OPTIONAL()
         Container<Index> indices;
+        Container<Index> order;
+
+        void emplace_back()
+        {
+            indices.emplace_back(InvalidIndex());
+            order.emplace_back(InvalidIndex());
+        }
     };
 
     struct SortedPostorder
     {
         DO_AST_CONTAINER_OPTIONAL()
         Container<Index> indices;
+        Container<Index> order;
+
+        void emplace_back()
+        {
+            indices.emplace_back(InvalidIndex());
+            order.emplace_back(InvalidIndex());
+        }
     };
 
     struct Depth
     {
         DO_AST_CONTAINER_OPTIONAL()
         Container<Size> depth;
+
+        void emplace_back()
+        {
+            depth.emplace_back(InvalidSize());
+        }
+
     };
 
     struct NumChildren
@@ -242,10 +287,17 @@ struct Nodes_
         {
             DO_AST_RETURN_IF_NOT_ENABLED()
             num_children[parent] = sizeof...(Args);
-        }        
+        }
+
+        void emplace_back()
+        {
+            num_children.emplace_back(InvalidSize());
+        }
+
     };
 
     DO_AST_CONTAINER_DEFAULT()
+    DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());
 
     Items             items;
     Neighbors         neighbors;
