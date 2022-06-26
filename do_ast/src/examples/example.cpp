@@ -69,9 +69,17 @@ int main(int argc, char **argv)
         do_ast::visit_args_between<2,3>(Foo, 1, 2, 3, 4, 5, 6);
     });
 
+    nodes.reserve(1024*1024);
+    nodes.clear();
+    benchmark.benchmark(100, "insert_nodes", [&nodes](){
+        nodes.clear();
+        for(int i = 0; i < 1024*1024; ++i)
+        {
+            nodes.insert(Node{i,i+0.0});
+        }
+    });
 
-
-    benchmark.end();
+    benchmark.end("total");
 
     Benchmark::Evaluation benchmark_eval;
     benchmark_eval.evaluate(benchmark);

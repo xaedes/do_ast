@@ -75,7 +75,8 @@
     DO_AST_FORWARD_FIRST_RETURN(Size, size, size);                                 \
     DO_AST_FORWARD_FIRST_RETURN(Size, capacity, capacity);                         \
     DO_AST_FORWARD_CALL_PRE(clear, clear, DO_AST_RETURN_IF_NOT_ENABLED());                  \
-    DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(resize, resize, DO_AST_RETURN_IF_NOT_ENABLED()); 
+    DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(resize, resize, DO_AST_RETURN_IF_NOT_ENABLED());  \
+    DO_AST_FORWARD_CALL_TEMPLATED_ARGS_PRE(reserve, reserve, DO_AST_RETURN_IF_NOT_ENABLED()); 
 
 #define DO_AST_CONTAINER(default_enabled)  \
     DO_AST_CONTAINER_FORWARDS()            \
@@ -173,9 +174,12 @@ namespace do_ast {
         struct Items
         {
             DO_AST_CONTAINER_DEFAULT()
-            DO_AST_FORWARD_CALL_PRE(emplace_back, emplace_back, DO_AST_RETURN_IF_NOT_ENABLED());
             Container<Node> items;
-            
+            void emplace_back()
+            {
+                DO_AST_RETURN_IF_NOT_ENABLED()
+                items.emplace_back();
+            }
         };
 
         struct Neighbors
@@ -202,6 +206,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 up.emplace_back(InvalidIndex());
                 down.emplace_back(InvalidIndex());
                 prev.emplace_back(InvalidIndex());
@@ -261,6 +266,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 next.emplace_back(InvalidIndex());
                 skip.emplace_back(InvalidIndex());
             }
@@ -274,6 +280,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 next.emplace_back(InvalidIndex());
             }
         };
@@ -286,6 +293,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 indices.emplace_back(InvalidIndex());
                 order.emplace_back(InvalidIndex());
             }
@@ -299,6 +307,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 indices.emplace_back(InvalidIndex());
                 order.emplace_back(InvalidIndex());
             }
@@ -311,6 +320,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 depth.emplace_back(InvalidSize());
             }
 
@@ -329,6 +339,7 @@ namespace do_ast {
 
             void emplace_back()
             {
+                DO_AST_RETURN_IF_NOT_ENABLED()
                 num_children.emplace_back(InvalidSize());
             }
 
@@ -371,7 +382,7 @@ namespace do_ast {
         {
             DO_AST_RETURN_IF_NOT_ENABLED()
             neighbors.set_children(parent, children...);
-            neighbors_packed.set_children(parent, children...);
+            //neighbors_packed.set_children(parent, children...);
             num_children.set_children(parent, children...);
         }
     };
@@ -379,7 +390,7 @@ namespace do_ast {
 } // namespace do_ast
 
 #define DO_AST_REGISTER_NODES(TheNodesType)                                                                                                                               \
-VISITABLE_STRUCT(TheNodesType, items, neighbors, neighbors_packed, traverse_preorder, traverse_postorder, sorted_preorder, sorted_postorder, depth, num_children); \
+VISITABLE_STRUCT(TheNodesType, items, neighbors, num_children); \
 VISITABLE_STRUCT(TheNodesType::Items,             items);                                                                                                          \
 VISITABLE_STRUCT(TheNodesType::Neighbors,         up, down, prev, next);                                                                                           \
 VISITABLE_STRUCT(TheNodesType::NeighborsPacked,   neighbors);                                                                                                      \
@@ -389,3 +400,5 @@ VISITABLE_STRUCT(TheNodesType::SortedPreorder,    indices);                     
 VISITABLE_STRUCT(TheNodesType::SortedPostorder,   indices);                                                                                                        \
 VISITABLE_STRUCT(TheNodesType::Depth,             depth);                                                                                                          \
 VISITABLE_STRUCT(TheNodesType::NumChildren,       num_children);                                                                                                   
+
+// V_ISITABLE_STRUCT(TheNodesType, items, neighbors, neighbors_packed, traverse_preorder, traverse_postorder, sorted_preorder, sorted_postorder, depth, num_children); \
