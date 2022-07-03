@@ -24,6 +24,16 @@ struct NodeTypeValueInserter
     ,down(forest->down())
     {}
 
+    void reset(Forest* forest)
+    {
+        *this = NodeTypeValueInserter(forest);
+    }
+
+    void clear()
+    {
+        m_size = 0;
+    }
+
     template<class T, class V, class... Children>
     Index operator()(
         T ntype,

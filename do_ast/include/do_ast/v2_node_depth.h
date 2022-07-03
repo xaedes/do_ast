@@ -51,6 +51,11 @@ namespace do_ast {
         Size size() const { return m_size; }
         Depth max_depth() const { return m_max_depth; }
 
+        void set_max_depth(Depth val)
+        {
+            m_max_depth = val;
+        }
+        
         void resize(Size size)
         {
             m_size = size;

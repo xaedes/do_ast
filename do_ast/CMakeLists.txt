@@ -23,6 +23,7 @@ set(EXAMPLE_NAMES
     example_v1
     example_v2
     example_v2_traverse
+    example_v2_reorder
 )
 foreach(EXAMPLE_NAME IN LISTS EXAMPLE_NAMES)
     add_executable(${PROJECT_NAME}_${EXAMPLE_NAME} src/examples/${EXAMPLE_NAME}.cpp)

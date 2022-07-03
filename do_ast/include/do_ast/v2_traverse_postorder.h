@@ -32,7 +32,20 @@ namespace do_ast {
             //   set_next_node(node)
             // }
 
+            m_count = 0;
             resize(forest.size());
+
+            const Index invalid = InvalidIndex();
+            const Index finished = InvalidIndex();
+
+            m_front = invalid;
+            m_back = invalid;
+
+            if (root == invalid)
+            {
+                return;
+            }
+
             const auto* go_up   = forest.up();
             const auto* go_down = forest.down();
             const auto* go_prev = forest.prev();
@@ -40,8 +53,7 @@ namespace do_ast {
 
             auto* next = this->next();
 
-            const Index invalid = InvalidIndex();
-            const Index finished = InvalidIndex();
+
 
             struct StackItem
             {
@@ -106,6 +118,7 @@ namespace do_ast {
                     {
                         next[back] = current_node;
                     }
+                    ++m_count;
                     back = current_node;
                     --stack_size;
                 }
@@ -113,6 +126,7 @@ namespace do_ast {
             m_front = front;
             m_back = back;
             next[back] = invalid;
+            ++m_count;
 
             s_stack_node.clear();
             s_stack_child.clear();
@@ -121,9 +135,22 @@ namespace do_ast {
 
     public:
         Size size() const { return m_size; }
+        Size count() const { return m_count; }
         Index front() const { return m_front; }
         Index back() const { return m_back; }
 
+        void set_count(Size count) 
+        {
+            m_count = count;
+        }
+        void set_front(Index front) 
+        {
+            m_front = front;
+        }
+        void set_back(Index back) 
+        {
+            m_back = back;
+        }
         void resize(Size size)
         {
             m_size = size;
@@ -133,6 +160,7 @@ namespace do_ast {
 
         void clear()
         {
+            m_count = 0;
             resize(0);
         }
 
@@ -141,6 +169,7 @@ namespace do_ast {
 
     protected:
         Size m_size = 0;
+        Size m_count = 0;
         Index m_front = InvalidIndex();
         Index m_back = InvalidIndex();
         Container<Index> m_next;

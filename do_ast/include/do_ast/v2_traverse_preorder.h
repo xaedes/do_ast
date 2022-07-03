@@ -25,7 +25,16 @@ namespace do_ast {
 
         void build(const TNodeForest& forest, Index root)
         {
+            m_count = 0;
             resize(forest.size());
+
+            const Index invalid = InvalidIndex();
+
+            m_front = root;
+            m_back = root;
+
+            if (root == invalid) return;
+
             const auto* go_up   = forest.up();
             const auto* go_down = forest.down();
             const auto* go_prev = forest.prev();
@@ -34,12 +43,12 @@ namespace do_ast {
             auto* next = m_next_data;
             auto* skip = m_skip_data;
 
-            const Index invalid = InvalidIndex();
             Index current = root;
-            m_front = root;
             Index back = root;
             while (current != invalid)
             {
+                ++m_count;
+
                 back = current;
                 Index cur_up = go_up[current];
                 Index cur_down = go_down[current];
@@ -64,9 +73,22 @@ namespace do_ast {
 
     public:
         Size size() const { return m_size; }
+        Size count() const { return m_count; }
         Index front() const { return m_front; }
         Index back() const { return m_back; }
 
+        void set_count(Size count) 
+        {
+            m_count = count;
+        }
+        void set_front(Index front) 
+        {
+            m_front = front;
+        }
+        void set_back(Index back) 
+        {
+            m_back = back;
+        }
         void resize(Size size)
         {
             m_size = size;
@@ -78,6 +100,7 @@ namespace do_ast {
 
         void clear()
         {
+            m_count = 0;
             resize(0);
         }
 
@@ -88,6 +111,7 @@ namespace do_ast {
 
     protected:
         Size m_size = 0;
+        Size m_count = 0;
         Container<Index> m_next;
         Container<Index> m_skip;
         Index* m_next_data = nullptr;
