@@ -18,7 +18,7 @@
 //     std::vector<int> m_values;
 // };
 
-using Nodes = do_ast::NodesV2_<do_ast::NodeItemsV2_<int, int>>;
+using Nodes = do_ast::NodeForestV2_<do_ast::NodesV2_<int, int>>;
 
 // DO_AST_REGISTER_NODES(Nodes);
 
