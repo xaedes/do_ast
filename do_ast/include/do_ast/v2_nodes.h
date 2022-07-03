@@ -21,6 +21,8 @@ namespace do_ast {
         using Size       = TSize;
         template<class...Args> using Container  = TContainer<Args...>;
 
+        static Size InvalidSize() { return std::numeric_limits<Size>::max(); }
+
         Size size() const { return m_size; }
 
         void resize(Size size)

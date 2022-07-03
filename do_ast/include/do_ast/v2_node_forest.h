@@ -48,7 +48,7 @@ namespace do_ast {
 
         Size size() const { return m_size; }
 
-        template<class... Children>
+        template<class... Children, std::enable_if_t<(sizeof...(Children) > 4), bool> = true>
         void set_children(Index parent, Children... children)
         {
             auto* up = this->up();
@@ -58,18 +58,18 @@ namespace do_ast {
             do_ast::set_children(up(), down(), prev(), next(), parent, children...);
         }
 
-        void set_children_fast(Index parent)
+        void set_children(Index parent)
         {
             m_down_data[parent] = InvalidIndex();
         }
-        void set_children_fast(Index parent, Index child0)
+        void set_children(Index parent, Index child0)
         {
             m_up_data[child0] = parent;
             m_prev_data[child0] = InvalidIndex();
             m_next_data[child0] = InvalidIndex();
             m_down_data[parent] = child0;
         }
-        void set_children_fast(Index parent, Index child0, Index child1)
+        void set_children(Index parent, Index child0, Index child1)
         {
             m_up_data[child0] = parent;
             m_up_data[child1] = parent;
@@ -79,7 +79,7 @@ namespace do_ast {
             m_next_data[child1] = InvalidIndex();
             m_down_data[parent] = child0;
         }
-        void set_children_fast(Index parent, Index child0, Index child1, Index child2)
+        void set_children(Index parent, Index child0, Index child1, Index child2)
         {
             m_up_data[child0] = parent;
             m_up_data[child1] = parent;
@@ -92,7 +92,7 @@ namespace do_ast {
             m_next_data[child2] = InvalidIndex();
             m_down_data[parent] = child0;
         }
-        void set_children_fast(Index parent, Index child0, Index child1, Index child2, Index child3)
+        void set_children(Index parent, Index child0, Index child1, Index child2, Index child3)
         {
             m_up_data[child0] = parent;
             m_up_data[child1] = parent;

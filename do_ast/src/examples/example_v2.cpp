@@ -11,6 +11,7 @@
 #include <do_ast/arg_template_helpers.h>
 #include <do_ast/v2_nodes.h>
 #include <do_ast/v2_node_forest.h>
+#include <do_ast/v2_traverse_preorder.h>
 
 // struct Nodes
 // {
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
         nodes.resize(BENCHMARK_NODES_COUNT);
         for(Index i = 0; i < BENCHMARK_NODES_COUNT-1; ++i)
         {
-            nodes.set_children_fast(i, i+1);
+            nodes.set_children(i, i+1);
         }
     });
     benchmark.benchmark(BENCHMARK_ITERATIONS, "down[i] = ...", [&nodes](){
