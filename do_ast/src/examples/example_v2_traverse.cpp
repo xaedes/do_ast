@@ -14,6 +14,8 @@
 #include <do_ast/v2_node_forest.h>
 #include <do_ast/v2_node_type_value_inserter.h>
 #include <do_ast/v2_traverse_preorder.h>
+#include <do_ast/v2_traverse_postorder.h>
+#include <do_ast/v2_foreach.h>
 
 using Forest = do_ast::NodeForestV2_<do_ast::NodesV2_<int, int>>;
 
@@ -54,14 +56,28 @@ int main(int argc, char **argv)
         insert_val(6)
     );
 
-    do_ast::TraversePreorder<Forest> traverse_preorder;
-    traverse_preorder.build(forest, root);
-
     NodeType* types = nodes.type();
     NodeValue* values = nodes.value();
-    traverse_preorder.foreach(root, [types,values](auto nid){
-        std::cout << "t:" << types[nid] << " v:" << values[nid] << "\n";
+
+    std::cout << "---" << "\n";
+    std::cout << "TraversePreorder" << "\n";
+
+    do_ast::TraversePreorder<Forest> traverse_preorder;
+    traverse_preorder.build(forest, root);
+    do_ast::foreach(traverse_preorder, [types, values](auto nid){
+        std::cout << "#:" << nid << " t:" << types[nid] << " v:" << values[nid] << "\n";
     });
+
+    std::cout << "---" << "\n";
+    std::cout << "TraversePostorder" << "\n";
+
+    do_ast::TraversePostorder<Forest> traverse_postorder;
+    traverse_postorder.build(forest, root);
+    do_ast::foreach(traverse_postorder, [types, values](auto nid){
+        std::cout << "#:" << nid << " t:" << types[nid] << " v:" << values[nid] << "\n";
+    });
+
+    std::cout << "---" << "\n";
 
     benchmark.end("total");
     Benchmark::Evaluation benchmark_eval;

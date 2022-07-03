@@ -23,32 +23,6 @@ namespace do_ast {
 
     public:
 
-        template<class F>
-        void foreach(Index root, F func)
-        {
-            Index current = root;
-            const Index invalid = InvalidIndex();
-            const auto* next = m_next_data;
-            while (current != invalid)
-            {
-                func(current);
-                current = next[current];
-            }
-        }
-
-        template<class F>
-        void foreach_until(Index root, F func)
-        {
-            Index current = root;
-            const Index invalid = InvalidIndex();
-            const auto* next = m_next_data;
-            while (current != invalid)
-            {
-                if (!func(current)) break;
-                current = next[current];
-            }
-        }
-
         void build(const TNodeForest& forest, Index root)
         {
             resize(forest.size());
@@ -62,9 +36,11 @@ namespace do_ast {
 
             const Index invalid = InvalidIndex();
             Index current = root;
-
+            m_front = root;
+            Index back = root;
             while (current != invalid)
             {
+                back = current;
                 Index cur_up = go_up[current];
                 Index cur_down = go_down[current];
                 Index cur_next = go_next[current];
@@ -83,10 +59,13 @@ namespace do_ast {
                 next[current] = next_cur;
                 current = next_cur;
             }
+            m_back = back;
         }
 
     public:
         Size size() const { return m_size; }
+        Index front() const { return m_front; }
+        Index back() const { return m_back; }
 
         void resize(Size size)
         {
@@ -102,7 +81,7 @@ namespace do_ast {
             resize(0);
         }
 
-        Index* next()  { return m_next_data; }
+        Index* next()  { return m_next_data; } 
         Index* skip()  { return m_skip_data; }
         const Index* next() const { return m_next_data; }
         const Index* skip() const { return m_skip_data; }
@@ -113,6 +92,8 @@ namespace do_ast {
         Container<Index> m_skip;
         Index* m_next_data;
         Index* m_skip_data;
+        Index m_front;
+        Index m_back;
     };
 
 } // namespace do_ast
