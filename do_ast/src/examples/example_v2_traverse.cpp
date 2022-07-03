@@ -15,6 +15,7 @@
 #include <do_ast/v2_node_type_value_inserter.h>
 #include <do_ast/v2_traverse_preorder.h>
 #include <do_ast/v2_traverse_postorder.h>
+#include <do_ast/v2_node_depth.h>
 #include <do_ast/v2_foreach.h>
 
 using Forest = do_ast::NodeForestV2_<do_ast::NodesV2_<int, int>>;
@@ -63,9 +64,24 @@ int main(int argc, char **argv)
     std::cout << "TraversePreorder" << "\n";
 
     do_ast::TraversePreorder<Forest> traverse_preorder;
+    do_ast::NodeDepth<Forest> node_depth;
     traverse_preorder.build(forest, root);
-    do_ast::foreach(traverse_preorder, [types, values](auto nid){
-        std::cout << "#:" << nid << " t:" << types[nid] << " v:" << values[nid] << "\n";
+    node_depth.build(forest, traverse_preorder);
+    const auto* depth = node_depth.depth();
+    auto max_depth = node_depth.max_depth();
+    do_ast::foreach(traverse_preorder, [types, values, depth, max_depth](auto nid){
+        auto d = depth[nid];
+        for (decltype(d) i=0; i<d; ++i)
+        {
+            std::cout << " ";
+        }
+        std::cout << "*";
+        for (auto i=d; i<max_depth; ++i)
+        {
+            std::cout << " ";
+        }
+        std::cout << " ";
+        std::cout << "d:" << depth[nid] << " #:" << nid << " t:" << types[nid] << " v:" << values[nid] << "\n";
     });
 
     std::cout << "---" << "\n";
