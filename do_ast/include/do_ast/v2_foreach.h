@@ -51,7 +51,7 @@ namespace do_ast {
         I current = begin;
         while (current != invalid)
         {
-            if (!func(current)) break;
+            if (func(current)) break;
             current = next[current];
         }
     }
@@ -63,7 +63,7 @@ namespace do_ast {
         while (current != invalid)
         {
             bool do_skip = false;
-            if (!func(current, &do_skip)) break;
+            if (func(current, &do_skip)) break;
             current = do_skip ? skip[current] : next[current];
         }
     }
