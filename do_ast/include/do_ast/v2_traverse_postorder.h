@@ -38,9 +38,6 @@ namespace do_ast {
             const auto* go_prev = forest.prev();
             const auto* go_next = forest.next();
 
-            // const auto* preorder_next = preorder.next();
-            // const auto* preorder_skip = preorder.skip();
-
             auto* next = this->next();
 
             const Index invalid = InvalidIndex();
@@ -53,27 +50,49 @@ namespace do_ast {
 
                 StackItem(Index node, Index child) : node(node), child(child) {}
             };
-            static Container<StackItem> s_stack;
-            s_stack.clear();
-
-            s_stack.emplace_back(root, go_down[root]);
+            static Container<Index> s_stack_node;
+            static Container<Index> s_stack_child;
+            // expected maximum depth of stack is: log(max_num_items=2^(num_bits=sizeof(Size)*8))=sizeof(Size)*8
+            // allocate +1 to avoid need for allocation on last level of expected maximum depth (which is sizeof(Size)*8)
+            Size stack_capacity = sizeof(Size)*8 + 1; 
+            s_stack_node.clear();
+            s_stack_child.clear();
+            s_stack_node.resize(stack_capacity);
+            s_stack_child.resize(stack_capacity);
+            auto* stack_node = s_stack_node.data();
+            auto* stack_child = s_stack_child.data();
+            Index stack_size = 0;
+            stack_node[stack_size] = root;
+            stack_child[stack_size] = go_down[root];
+            ++stack_size;
 
             Index front = invalid;
             Index back = invalid;
 
-            while (s_stack.size() > 0)
+            while (stack_size)
             {
-                auto& current = s_stack.back();
+                if (stack_size == stack_capacity)
+                {
+                    // grow stack
+                    stack_capacity += (stack_capacity >> 1);
+                    s_stack_node.resize(stack_capacity);
+                    s_stack_child.resize(stack_capacity);
+                    stack_node = s_stack_node.data();
+                    stack_child = s_stack_child.data();                    
+                }
 
-                if (current.child != finished)
+                auto& current_node = stack_node[stack_size-1];
+                auto& current_child = stack_child[stack_size-1];
+
+                if (current_child != finished)
                 {
                     // recurse down the tree
-                    Index node = current.child;
-                    Index child = go_down[current.child];
+                    stack_node[stack_size] = current_child;
+                    stack_child[stack_size] = go_down[current_child];
                     // advance current child
-                    current.child = go_next[current.child]; 
+                    current_child = go_next[current_child]; 
                     // recurse down the tree
-                    s_stack.emplace_back(node, child);
+                    ++stack_size;
                     continue;
                 }
                 else
@@ -81,19 +100,23 @@ namespace do_ast {
                     // no more children to traverse
                     if (back == invalid)
                     {
-                        front = current.node;
+                        front = current_node;
                     }
                     else
                     {
-                        next[back] = current.node;
+                        next[back] = current_node;
                     }
-                    back = current.node;
-                    s_stack.pop_back();
+                    back = current_node;
+                    --stack_size;
                 }
             }
             m_front = front;
             m_back = back;
             next[back] = invalid;
+
+            s_stack_node.clear();
+            s_stack_child.clear();
+
         }
 
     public:
