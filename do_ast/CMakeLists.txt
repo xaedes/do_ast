@@ -21,6 +21,7 @@ target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_11)
 
 set(EXAMPLE_NAMES 
     example_v1
+    example_v2
 )
 foreach(EXAMPLE_NAME IN LISTS EXAMPLE_NAMES)
     add_executable(${PROJECT_NAME}_${EXAMPLE_NAME} src/examples/${EXAMPLE_NAME}.cpp)
