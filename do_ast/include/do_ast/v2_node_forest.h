@@ -152,10 +152,10 @@ namespace do_ast {
         Container<Index> m_down;
         Container<Index> m_prev;
         Container<Index> m_next;
-        Index* m_up_data;
-        Index* m_down_data;
-        Index* m_prev_data;
-        Index* m_next_data;
+        Index* m_up_data = nullptr;
+        Index* m_down_data = nullptr;
+        Index* m_prev_data = nullptr;
+        Index* m_next_data = nullptr;
     };
 
 } // namespace do_ast

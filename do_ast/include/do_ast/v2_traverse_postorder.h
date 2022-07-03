@@ -128,9 +128,7 @@ namespace do_ast {
         {
             m_size = size;
             m_next.resize(size);
-            // m_skip.resize(size);
             m_next_data = m_next.data();
-            // m_skip_data = m_skip.data();
         }
 
         void clear()
@@ -139,18 +137,14 @@ namespace do_ast {
         }
 
         Index* next()  { return m_next_data; }
-        // Index* skip()  { return m_skip_data; }
         const Index* next() const { return m_next_data; }
-        // const Index* skip() const { return m_skip_data; }
 
     protected:
         Size m_size = 0;
-        Index m_front = 0;
-        Index m_back = 0;
+        Index m_front = InvalidIndex();
+        Index m_back = InvalidIndex();
         Container<Index> m_next;
-        // Container<Index> m_skip;
-        Index* m_next_data;
-        // Index* m_skip_data;
+        Index* m_next_data = nullptr;
     };
 
 } // namespace do_ast

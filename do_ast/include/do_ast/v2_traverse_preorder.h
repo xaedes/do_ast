@@ -90,10 +90,10 @@ namespace do_ast {
         Size m_size = 0;
         Container<Index> m_next;
         Container<Index> m_skip;
-        Index* m_next_data;
-        Index* m_skip_data;
-        Index m_front;
-        Index m_back;
+        Index* m_next_data = nullptr;
+        Index* m_skip_data = nullptr;
+        Index m_front = InvalidIndex();
+        Index m_back = InvalidIndex();
     };
 
 } // namespace do_ast

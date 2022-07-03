@@ -48,8 +48,8 @@ namespace do_ast {
         Size m_size = 0;
         Container<NodeType> m_type_container;
         Container<NodeValue> m_value_container;
-        NodeType* m_type_data;
-        NodeValue* m_value_data;
+        NodeType* m_type_data = nullptr;
+        NodeValue* m_value_data = nullptr;
     };
 
 } // namespace do_ast
