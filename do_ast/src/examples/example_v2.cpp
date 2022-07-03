@@ -10,6 +10,7 @@
 #include <do_ast/benchmark.h>
 #include <do_ast/arg_template_helpers.h>
 #include <do_ast/v2_nodes.h>
+#include <do_ast/v2_node_forest.h>
 #include <do_ast/visit_struct/visit_struct.h>
 
 // struct Nodes
