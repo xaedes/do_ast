@@ -14,7 +14,7 @@ namespace do_ast {
         class TSize = std::size_t,
         template<class...> class TContainer = std::vector
     >
-    struct NodeItemsV2_
+    struct NodesV2_
     {
         using NodeType   = TNodeType;
         using NodeValue  = TNodeValue;
@@ -78,7 +78,7 @@ namespace do_ast {
         class TSize = std::size_t,
         template<class...> class TContainer = std::vector
     >
-    struct NodesV2_
+    struct NodeForestV2_
     {
         using Nodes      = TNodes;
         using Index      = TIndex;
